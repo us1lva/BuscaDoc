@@ -1,0 +1,14 @@
+{
+  "pasta": "\\\\brs-ifs028\\ho_002$\\br_IND\\8. OP\\- 5000000 - ADM IF\\#Controles\\Equipe\\Documentos Equipe\\#ATIVOS",
+  "host": "127.0.0.1",
+  "porta": 8080,
+  "intervalo_segundos": 10,
+  "max_niveis": 6,
+  "docs": [
+    {"k": "end",   "n": "Comprovante de endereço", "re": "endere|residenc"},
+    {"k": "cnpj",  "n": "CNPJ",                    "re": "cnpj"},
+    {"k": "banco", "n": "Comprovante bancário",    "re": "banc|agencia"},
+    {"k": "cond",  "n": "Código de Conduta",       "re": "cond[uo]t"},
+    {"k": "integ", "n": "Código de Integridade",   "re": "integri"}
+  ]
+}

@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Checklist de Documentos – Ativos</title>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#edf0f2;--card:#fff;--ink:#14212b;--mut:#5b6976;--line:#d6dde2;--acc:#1d5f8c;--ok:#0e7a5a;--okbg:#e0f3ea;--miss:#bf3f1c;--missbg:#fbe8e1;--tab:#d9e2e8;--deep:#11242f}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 "Instrument Sans",system-ui,"Segoe UI",sans-serif}
+header{display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between;padding:18px 28px;background:var(--deep);color:#fff}
+h1{margin:0;font-size:21px;font-weight:700}
+header small{color:#a9bac6;display:block;font-size:13px}
+button{font:inherit;cursor:pointer;border:1px solid var(--acc);background:var(--acc);color:#fff;padding:8px 14px;border-radius:6px}
+button:disabled{opacity:.5;cursor:not-allowed}
+button.sec{background:transparent;color:#fff;border-color:#6d8090}
+main{padding:22px 28px 40px;max-width:1440px;margin:auto}
+.msg{padding:40px;text-align:center;color:var(--mut)}
+#status{font-size:13px}
+
+/* resumo */
+.sum{display:grid;grid-template-columns:minmax(300px,420px) 1fr;gap:18px;margin-bottom:20px}
+.panel{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:16px 18px}
+.hero{display:flex;gap:18px;align-items:center}
+.hero svg{flex:none}
+.hero h2,.cov h2{margin:0 0 4px;font-size:16px}
+.hero p{margin:0;color:var(--mut);font-size:13.5px}
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:8px 16px;margin-top:12px}
+.stats b{display:block;font-size:24px;line-height:1.1}
+.stats span{font-size:12.5px;color:var(--mut)}
+.stats .r b{color:var(--miss)}.stats .g b{color:var(--ok)}
+.cov .list{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px;margin-top:10px}
+.tile{display:block;text-align:left;background:#f7f9fa;color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:10px 12px}
+.tile.on{border-color:var(--miss);background:var(--missbg);box-shadow:0 0 0 1px var(--miss)}
+.tile strong{display:block;font-size:14px}
+.tile .n{display:flex;justify-content:space-between;font-size:12.5px;color:var(--mut);margin:2px 0 6px}
+.tile .n b{color:var(--miss)}
+.trk{height:8px;background:var(--missbg);border-radius:4px;overflow:hidden}
+.trk i{display:block;height:100%;background:var(--ok)}
+.dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:#7a8a96;margin-right:7px}.dot.live{background:#2fd19a}.dot.busy{animation:pl 1s infinite}@keyframes pl{50%{opacity:.25}}
+tr.novo td,.folder.novo{animation:fl 5s ease-out}@keyframes fl{0%,30%{background:#fff0b8}}
+.hint{font-size:12.5px;color:var(--mut);margin:10px 0 0}
+
+/* barra de ferramentas */
+.tools{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:8px;align-items:center}
+#filtros{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+input[type=search],#ign,select{font:inherit;padding:8px 10px;border:1px solid var(--line);border-radius:6px;background:#fff;color:var(--ink)}
+input[type=search]{min-width:230px}
+.tools button{background:#fff;color:var(--ink);border-color:var(--line)}
+.tools button.on{background:var(--deep);color:#fff;border-color:var(--deep)}
+.sep{width:1px;height:24px;background:var(--line);margin:0 4px}
+.info{font-size:13.5px;color:var(--mut);margin:0 0 12px}
+.info button{padding:2px 8px;font-size:12.5px;margin-left:6px}
+
+/* matriz */
+.mx{overflow-x:auto;background:var(--card);border:1px solid var(--line);border-radius:10px}
+table{border-collapse:collapse;width:100%;min-width:820px}
+th{font-size:13px;text-align:center;padding:10px 8px;background:#f3f6f8;border-bottom:1px solid var(--line);font-weight:600}
+th:first-child,td:first-child{text-align:left;position:sticky;left:0;background:inherit;z-index:1}
+td{padding:6px 8px;border-bottom:1px solid #e8edf0;text-align:center}
+tr:nth-child(even) td{background:#fafbfc}
+tr:nth-child(odd) td{background:#fff}
+tbody tr:hover td{background:#eef5fa}
+tr:last-child td{border-bottom:0}
+.who{display:flex;align-items:center;gap:10px;min-width:210px}
+.who b{font-weight:600}
+.av{flex:none;width:32px;height:32px;border-radius:50%;background:var(--tab);display:grid;place-items:center;font-size:12.5px;font-weight:700;color:var(--deep)}
+.seg{display:flex;gap:2px;margin-top:3px}
+.seg i{width:16px;height:5px;border-radius:2px;background:#d9c2ba}
+.seg i.on{background:var(--ok)}
+.c{position:relative;display:flex;flex-direction:column;align-items:center;gap:0;padding:5px 4px;border-radius:7px;cursor:pointer;min-width:96px}
+.c input{position:absolute;opacity:0;inset:0;cursor:pointer}
+.c .ico{font-size:17px;font-weight:700;line-height:1.2}
+.c em{font-style:normal;font-size:11.5px}
+.c.y{background:var(--okbg);color:var(--ok)}
+.c.n{background:var(--missbg);color:var(--miss)}
+.c:has(input:focus-visible){outline:3px solid #7fb0e0}
+.st{font-size:13px;text-align:left;min-width:190px}
+.st.ok{color:var(--ok);font-weight:600}
+.st.no{color:var(--miss)}
+
+/* cartões (pastas) */
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(310px,1fr));gap:28px 18px}
+.folder{position:relative;background:var(--card);border:1px solid var(--line);border-radius:0 10px 10px 10px;padding:14px 16px;margin-top:14px}
+.folder::before{content:"";position:absolute;top:-14px;left:-1px;width:96px;height:14px;background:var(--tab);border:1px solid var(--line);border-bottom:0;border-radius:8px 8px 0 0}
+.folder.done{border-left:5px solid var(--ok)}.folder.pend{border-left:5px solid var(--miss)}
+.folder .top{display:flex;gap:10px;align-items:center;margin-bottom:8px}
+.folder h3{margin:0;font-size:16px;line-height:1.2}
+.badge{margin-left:auto;font-size:12px;font-weight:600;padding:2px 9px;border-radius:99px;white-space:nowrap}
+.done .badge{background:var(--okbg);color:var(--ok)}.pend .badge{background:var(--missbg);color:var(--miss)}
+.folder .seg{margin:0 0 8px}.folder .seg i{flex:1;height:6px}
+.folder label{display:flex;gap:8px;align-items:flex-start;padding:5px 0;font-size:14px;border-top:1px solid #edf0f2}
+.folder label input{margin-top:3px}
+.folder .arq{display:block;font-size:12px;color:var(--mut);word-break:break-all}
+.folder .tag{margin-left:auto;font-size:12px;color:var(--mut);white-space:nowrap}
+.folder .no{color:var(--miss)}
+
+/* diagnóstico */
+details{font-size:14px}summary{cursor:pointer;color:var(--acc);font-weight:600}
+#diag{margin-top:26px}
+#diag .aviso{color:var(--miss);font-weight:600}
+#diag ul{margin:6px 0;padding-left:20px;color:var(--miss);font-size:13px}
+#diag pre{background:#f4f6f8;border:1px solid var(--line);border-radius:6px;padding:10px;max-height:260px;overflow:auto;font-size:12.5px;white-space:pre-wrap}
+:focus-visible{outline:3px solid #7fb0e0;outline-offset:2px}
+@media(max-width:860px){.sum{grid-template-columns:1fr}header,main{padding-left:16px;padding-right:16px}}
+@media print{header button,.tools,#diag{display:none}}
+</style>
+</head>
+<body>
+<header>
+  <div><h1>Checklist de documentos – Ativos</h1><small><span class="dot" id="dot"></span><span id="status">Nenhuma pasta conectada</span></small></div>
+  <div>
+    <button id="btnScan" class="sec" hidden>Atualizar agora</button>
+    <button id="btnCsv" class="sec" hidden>Exportar CSV</button>
+  </div>
+</header>
+<main>
+  <div id="intro" class="msg">Conectando ao servidor…</div>
+  <div id="app" hidden>
+    <div id="resumo"></div>
+    <div class="tools"><input type="search" id="busca" placeholder="Buscar pessoa" aria-label="Buscar pessoa"><span id="filtros"></span></div>
+    <p class="info" id="info"></p>
+    <div id="grid"></div>
+  </div>
+  <details id="diag" class="panel" hidden><summary>Diagnóstico da leitura</summary><div id="diagBody"></div></details>
+</main>
+<script>
+let DOCS=[];
+const S={pessoas:{},manual:{},ignorar:'',ts:'',hora:'',dur:0,erros:[],eventos:[],novos:new Map(),ultMud:'',handle:null,ver:-1,filtro:'todos',busca:'',diagP:'',docF:'',ordem:'falta',vista:'matriz'};
+const $=s=>document.querySelector(s);
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const norm=s=>s.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
+const hoje=()=>new Date().toLocaleDateString('sv-SE');
+const cmp=(a,b)=>a.localeCompare(b,'pt-BR');
+const setStatus=t=>{$('#status').textContent=t};
+
+const api=(u,b)=>fetch(u,b?{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(b)}:{}).then(r=>r.json());
+const nv=n=>Date.now()-(S.novos.get(n)||0)<5000?'novo':'';
+const setDot=c=>{$('#dot').className='dot '+c};
+const atualizarStatus=()=>setStatus('Ao vivo · verificado às '+S.hora+(S.ultMud?' · última mudança às '+S.ultMud:'')+(S.erros.length?' · '+S.erros.length+' erro(s), veja o diagnóstico':''));
+async function carregar(){
+  const j=await api('/api/estado'),ant=S.pessoas,tinha=Object.keys(ant).length>0;
+  if(!j.hora&&!Object.keys(j.pessoas).length){setStatus('Lendo a pasta pela primeira vez…');return}
+  DOCS=j.docs;S.pessoas=j.pessoas;S.manual=j.manual;S.ignorar=j.ignorar;S.eventos=j.eventos;S.erros=j.erros;S.hora=j.hora;S.dur=j.dur;S.ts=j.ts;S.ver=j.ver;S.handle={name:j.pasta};
+  if(tinha){const mud=Object.keys(S.pessoas).filter(n=>JSON.stringify(ant[n]?.files)!==JSON.stringify(S.pessoas[n].files));
+    if(mud.length){S.ultMud=j.hora;mud.forEach(n=>S.novos.set(n,Date.now()))}}
+  render();atualizarStatus();
+}
+
+/* ---- regras ----
+   manual[pessoa][doc]: true = marcado à mão · 'nao' = ignorar o arquivo encontrado */
+const achou=(n,k)=>S.pessoas[n].docs[k].length>0;
+const tem=(n,k)=>{const m=S.manual[n]?.[k];return m==='nao'?false:(achou(n,k)||m===true)};
+function situacao(n){const faltam=DOCS.filter(d=>!tem(n,d.k)).map(d=>d.n);return{completo:faltam.length===0,faltam}}
+const ini=n=>n.split(/\s+/).filter(Boolean).slice(0,2).map(w=>w[0]).join('').toUpperCase();
+const seg=n=>'<div class="seg">'+DOCS.map(d=>`<i class="${tem(n,d.k)?'on':''}" title="${esc(d.n)}"></i>`).join('')+'</div>';
+const base=f=>f.split('/').pop();
+
+/* ---- resumo no topo ---- */
+function resumo(nomes){
+  const tot=nomes.length,comp=nomes.filter(n=>situacao(n).completo).length;
+  const slots=tot*DOCS.length,tem_=nomes.reduce((s,n)=>s+DOCS.filter(d=>tem(n,d.k)).length,0);
+  const pct=slots?Math.round(tem_/slots*100):0,C=2*Math.PI*52;
+  return `<div class="sum">
+   <div class="panel hero">
+    <svg width="130" height="130" viewBox="0 0 130 130" role="img" aria-label="${pct}% dos documentos entregues">
+     <circle cx="65" cy="65" r="52" fill="none" stroke="var(--missbg)" stroke-width="16"/>
+     <circle cx="65" cy="65" r="52" fill="none" stroke="var(--ok)" stroke-width="16" stroke-linecap="round" stroke-dasharray="${C*pct/100} ${C}" transform="rotate(-90 65 65)"/>
+     <text x="65" y="73" text-anchor="middle" font-size="26" font-weight="700" fill="currentColor">${pct}%</text></svg>
+    <div><h2>Documentos entregues</h2><p>${tem_} de ${slots} documentos esperados</p>
+     <div class="stats"><div><b>${tot}</b><span>pessoas</span></div><div class="g"><b>${comp}</b><span>com tudo</span></div><div class="r"><b>${tot-comp}</b><span>com pendência</span></div><div class="r"><b>${slots-tem_}</b><span>documentos faltando</span></div></div></div>
+   </div>
+   <div class="panel cov"><h2>Cobertura por documento</h2>
+    <div class="list">${DOCS.map(d=>{const f=nomes.filter(n=>!tem(n,d.k)).length,p=tot?Math.round((tot-f)/tot*100):0;
+     return `<button class="tile ${S.docF===d.k?'on':''}" data-d="${d.k}" aria-pressed="${S.docF===d.k}"><strong>${esc(d.n)}</strong><span class="n"><span>${tot-f} de ${tot} (${p}%)</span><b>${f?'faltam '+f:'completo'}</b></span><div class="trk"><i style="width:${p}%"></i></div></button>`}).join('')}</div>
+    <p class="hint">Clique em um documento para ver só quem ainda não entregou.</p></div></div>`;
+}
+
+/* ---- tela ---- */
+function celula(n,d){
+  const arqs=S.pessoas[n].docs[d.k],a=arqs.length>0,chk=tem(n,d.k);
+  const sub=a?(chk?arqs.length+(arqs.length>1?' arquivos':' arquivo'):'ignorado'):(chk?'marcado à mão':'falta');
+  return `<label class="c ${chk?'y':'n'}" title="${esc(arqs.join('\n')||d.n)}"><input type="checkbox" data-n="${encodeURIComponent(n)}" data-k="${d.k}" ${chk?'checked':''} aria-label="${esc(d.n)} de ${esc(n)}"><span class="ico">${chk?'✓':'✕'}</span><em>${sub}</em></label>`;
+}
+function matriz(lista){
+  return `<div class="mx"><table><thead><tr><th>Pessoa</th>${DOCS.map(d=>`<th>${esc(d.n)}</th>`).join('')}<th style="text-align:left">Situação</th></tr></thead><tbody>${lista.map(n=>{
+   const st=situacao(n);
+   return `<tr class="${nv(n)}"><td><div class="who"><span class="av">${esc(ini(n))}</span><div><b>${esc(n)}</b>${seg(n)}</div></div></td>${DOCS.map(d=>`<td>${celula(n,d)}</td>`).join('')}<td class="st ${st.completo?'ok':'no'}">${st.completo?'Tudo certo':'Faltam '+st.faltam.length+': '+esc(st.faltam.join(', '))}</td></tr>`}).join('')}</tbody></table></div>`;
+}
+function cartoes(lista){
+  return '<div class="grid">'+lista.map(n=>{
+    const st=situacao(n),ok=DOCS.length-st.faltam.length;
+    return `<section class="folder ${st.completo?'done':'pend'} ${nv(n)}"><div class="top"><span class="av">${esc(ini(n))}</span><h3>${esc(n)}</h3><span class="badge">${st.completo?'Completo':ok+' de '+DOCS.length}</span></div>${seg(n)}
+     ${DOCS.map(d=>{
+       const arqs=S.pessoas[n].docs[d.k],a=arqs.length>0,chk=tem(n,d.k);
+       const tag=a?(chk?'':'ignorado'):(chk?'marcado à mão':'falta');
+       const det=a?`<span class="arq" title="${esc(arqs.join('\n'))}">${esc(base(arqs[0]))}${arqs.length>1?' + '+(arqs.length-1)+' outro(s)':''}</span>`:'';
+       return `<label><input type="checkbox" data-n="${encodeURIComponent(n)}" data-k="${d.k}" ${chk?'checked':''}><span>${esc(d.n)}${det}</span><span class="tag ${chk?'':'no'}">${tag}</span></label>`;
+     }).join('')}</section>`;
+  }).join('')+'</div>';
+}
+function render(){
+  $('#intro').hidden=true;$('#app').hidden=false;$('#btnScan').hidden=false;$('#btnCsv').hidden=false;
+  const todos=Object.keys(S.pessoas).sort(cmp);
+  $('#resumo').innerHTML=todos.length?resumo(todos):'';
+  const F=(k,t)=>`<button class="${S.filtro===k?'on':''}" data-f="${k}">${t}</button>`;
+  const V=(k,t)=>`<button class="${S.vista===k?'on':''}" data-v="${k}">${t}</button>`;
+  const nP=todos.filter(n=>!situacao(n).completo).length;
+  $('#filtros').innerHTML=F('todos','Todos ('+todos.length+')')+F('pend','Pendentes ('+nP+')')+F('ok','Completos ('+(todos.length-nP)+')')+'<span class="sep"></span>'+
+   `<label>Ordenar: <select id="ordem"><option value="falta" ${S.ordem==='falta'?'selected':''}>Mais pendências primeiro</option><option value="nome" ${S.ordem==='nome'?'selected':''}>Nome (A–Z)</option></select></label><span class="sep"></span>`+V('matriz','Matriz')+V('cartoes','Pastas');
+  if(!todos.length){$('#info').textContent='';$('#grid').innerHTML='<div class="msg">Nenhuma subpasta de pessoa encontrada nesta pasta. Confira se você escolheu a pasta #ATIVOS (a que contém uma subpasta por pessoa).</div>';renderDiag();return}
+  let lista=todos.filter(n=>norm(n).includes(norm(S.busca)));
+  if(S.filtro!=='todos')lista=lista.filter(n=>(S.filtro==='ok')===situacao(n).completo);
+  if(S.docF)lista=lista.filter(n=>!tem(n,S.docF));
+  if(S.ordem==='falta')lista.sort((a,b)=>situacao(b).faltam.length-situacao(a).faltam.length||cmp(a,b));
+  const dn=DOCS.find(d=>d.k===S.docF);
+  $('#info').innerHTML=`Mostrando <b>${lista.length}</b> de ${todos.length} pessoas`+(dn?` sem <b>${esc(dn.n)}</b> <button data-d="${dn.k}">Limpar filtro</button>`:'')+' · clique em ✓ ou ✕ para corrigir à mão';
+  const sl=$('.mx')?.scrollLeft||0;
+  $('#grid').innerHTML=lista.length?(S.vista==='matriz'?matriz(lista):cartoes(lista)):'<div class="msg">Nada encontrado com esses filtros.</div>';
+  if(sl&&$('.mx'))$('.mx').scrollLeft=sl;
+  renderDiag();
+}
+function renderDiag(){
+  const d=$('#diag');d.hidden=!S.handle;if(!S.handle||['ign','diagPessoa'].includes(document.activeElement?.id))return;
+  const nomes=Object.keys(S.pessoas).sort(cmp);
+  const arqs=nomes.reduce((s,n)=>s+S.pessoas[n].files.length,0);
+  const semAch=DOCS.filter(x=>nomes.length&&nomes.every(n=>!achou(n,x.k)));
+  if(!S.diagP||!S.pessoas[S.diagP])S.diagP=nomes[0]||'';
+  $('#diagBody').innerHTML=
+   `<p><b>Pasta lida:</b> ${esc(S.handle.name)} · verificada às ${S.hora} · ${nomes.length} subpastas · ${arqs} arquivos · ${(S.dur/1000).toFixed(1)} s</p>`+
+   (semAch.length?`<p class="aviso">Ninguém teve detectado automaticamente: ${semAch.map(x=>esc(x.n)).join(', ')}. Provavelmente os arquivos têm nomes diferentes dos que o sistema procura. Veja os nomes reais abaixo e ajuste os padrões em config.json.</p>`:'')+
+   (S.erros.length?`<p class="aviso">${S.erros.length} erro(s) durante a leitura:</p><ul>${S.erros.slice(0,20).map(e=>`<li>${esc(e)}</li>`).join('')}</ul>`:'')+
+   `<p><label>Ignorar subpastas (nomes separados por vírgula): <input id="ign" value="${esc(S.ignorar)}"></label> <button id="btnIgn">Aplicar e reler</button></p>`+
+   `<p><label>Ver arquivos de: <select id="diagPessoa">${nomes.map(n=>`<option ${n===S.diagP?'selected':''}>${esc(n)}</option>`).join('')}</select></label></p><pre id="diagFiles"></pre><p><b>Atividade recente</b></p><pre>${esc(S.eventos.map(e=>e.ts+' · '+e.pessoa+' · '+e.tipo+(e.caminho?' · '+e.caminho:'')).join('\n')||'(nenhuma mudança registrada ainda)')}</pre>`;
+  mostrarArquivos();
+}
+function mostrarArquivos(){
+  const p=S.pessoas[S.diagP];const el=$('#diagFiles');if(!el)return;
+  el.textContent=p?(p.files.length?p.files.join('\n'):'(nenhum arquivo encontrado nesta pasta)'):'';
+}
+
+/* ---- exportar ---- */
+function csv(){
+  const q=v=>'"'+String(v).replace(/"/g,'""')+'"';
+  const linhas=[['Pessoa',...DOCS.map(d=>d.n),'Situação'].map(q).join(';')];
+  Object.keys(S.pessoas).sort(cmp).forEach(n=>{
+    const st=situacao(n);
+    linhas.push([n,...DOCS.map(d=>tem(n,d.k)?'Sim':'Não'),st.completo?'Completo':'Falta: '+st.faltam.join(', ')].map(q).join(';'));
+  });
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob(['\ufeff'+linhas.join('\r\n')],{type:'text/csv;charset=utf-8'}));
+  a.download='checklist-ativos-'+hoje()+'.csv';a.click();
+  setTimeout(()=>URL.revokeObjectURL(a.href),2000);
+}
+
+/* ---- eventos ---- */
+$('#busca').addEventListener('input',e=>{S.busca=e.target.value;render()});
+document.addEventListener('click',async e=>{
+  const b=e.target.closest?.('[data-f],[data-d],[data-v]');
+  if(b){
+    if(b.dataset.f)S.filtro=b.dataset.f;
+    if(b.dataset.v)S.vista=b.dataset.v;
+    if(b.dataset.d)S.docF=S.docF===b.dataset.d?'':b.dataset.d;
+    render();return;
+  }
+  if(e.target.id==='btnIgn')await api('/api/ignorar',{valor:$('#ign').value});
+});
+document.addEventListener('change',async e=>{
+  const t=e.target;
+  if(t.id==='ordem'){S.ordem=t.value;render();return}
+  if(t.id==='diagPessoa'){S.diagP=t.value;mostrarArquivos();return}
+  if(!t.dataset?.k)return;
+  const n=decodeURIComponent(t.dataset.n),k=t.dataset.k,m=(S.manual[n]??={});
+  if(achou(n,k)){if(t.checked)delete m[k];else m[k]='nao'}
+  else{if(t.checked)m[k]=true;else delete m[k]}
+  if(!Object.keys(m).length)delete S.manual[n];
+  render();api('/api/manual',{pessoa:n,doc:k,valor:m[k]===undefined?null:m[k]});
+});
+
+$('#btnScan').onclick=()=>api('/api/scan',{});
+$('#btnCsv').onclick=csv;
+function ligar(){   // o servidor avisa na hora quando algo muda na pasta
+  const es=new EventSource('/api/stream');
+  es.onmessage=e=>{const m=JSON.parse(e.data);setDot('live');if(m.ver!==S.ver)carregar();else if(m.hora&&S.hora){S.hora=m.hora;atualizarStatus()}};
+  es.onerror=()=>{setDot('');setStatus('Sem conexão com o servidor · tentando reconectar…')};
+}
+carregar().then(ligar).catch(()=>{setStatus('Servidor fora do ar · execute iniciar.bat');ligar()});
+</script>
+</body>
+</html>

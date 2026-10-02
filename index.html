@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Checklist de Documentos – Ativos</title>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#edf0f2;--card:#fff;--ink:#14212b;--mut:#5b6976;--line:#d6dde2;--acc:#1d5f8c;--ok:#0e7a5a;--okbg:#e0f3ea;--miss:#bf3f1c;--missbg:#fbe8e1;--tab:#d9e2e8;--deep:#11242f}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 "Instrument Sans",system-ui,"Segoe UI",sans-serif}
+header{display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between;padding:18px 28px;background:var(--deep);color:#fff}
+h1{margin:0;font-size:21px;font-weight:700}
+header small{color:#a9bac6;display:block;font-size:13px}
+button{font:inherit;cursor:pointer;border:1px solid var(--acc);background:var(--acc);color:#fff;padding:8px 14px;border-radius:6px}
+button:disabled{opacity:.5;cursor:not-allowed}
+button.sec{background:transparent;color:#fff;border-color:#6d8090}
+main{padding:22px 28px 40px;max-width:1440px;margin:auto}
+.msg{padding:40px;text-align:center;color:var(--mut)}
+#status{font-size:13px}
+
+/* resumo */
+.sum{display:grid;grid-template-columns:minmax(300px,420px) 1fr;gap:18px;margin-bottom:20px}
+.panel{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:16px 18px}
+.hero{display:flex;gap:18px;align-items:center}
+.hero svg{flex:none}
+.hero h2,.cov h2{margin:0 0 4px;font-size:16px}
+.hero p{margin:0;color:var(--mut);font-size:13.5px}
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:8px 16px;margin-top:12px}
+.stats b{display:block;font-size:24px;line-height:1.1}
+.stats span{font-size:12.5px;color:var(--mut)}
+.stats .r b{color:var(--miss)}.stats .g b{color:var(--ok)}
+.cov .list{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px;margin-top:10px}
+.tile{display:block;text-align:left;background:#f7f9fa;color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:10px 12px}
+.tile.on{border-color:var(--miss);background:var(--missbg);box-shadow:0 0 0 1px var(--miss)}
+.tile strong{display:block;font-size:14px}
+.tile .n{display:flex;justify-content:space-between;font-size:12.5px;color:var(--mut);margin:2px 0 6px}
+.tile .n b{color:var(--miss)}
+.trk{height:8px;background:var(--missbg);border-radius:4px;overflow:hidden}
+.trk i{display:block;height:100%;background:var(--ok)}
+.dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:#7a8a96;margin-right:7px}.dot.live{background:#2fd19a}.dot.busy{animation:pl 1s infinite}@keyframes pl{50%{opacity:.25}}
+tr.novo td,.folder.novo{animation:fl 5s ease-out}@keyframes fl{0%,30%{background:#fff0b8}}
+.hint{font-size:12.5px;color:var(--mut);margin:10px 0 0}
+
+/* barra de ferramentas */
+.tools{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:8px;align-items:center}
+#filtros{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+input[type=search],#ign,select{font:inherit;padding:8px 10px;border:1px solid var(--line);border-radius:6px;background:#fff;color:var(--ink)}
+input[type=search]{min-width:230px}
+.tools button{background:#fff;color:var(--ink);border-color:var(--line)}
+.tools button.on{background:var(--deep);color:#fff;border-color:var(--deep)}
+.sep{width:1px;height:24px;background:var(--line);margin:0 4px}
+.info{font-size:13.5px;color:var(--mut);margin:0 0 12px}
+.info button{padding:2px 8px;font-size:12.5px;margin-left:6px}
+
+/* matriz */
+.mx{overflow-x:auto;background:var(--card);border:1px solid var(--line);border-radius:10px}
+table{border-collapse:collapse;width:100%;min-width:820px}
+th{font-size:13px;text-align:center;padding:10px 8px;background:#f3f6f8;border-bottom:1px solid var(--line);font-weight:600}
+th:first-child,td:first-child{text-align:left;position:sticky;left:0;background:inherit;z-index:1}
+td{padding:6px 8px;border-bottom:1px solid #e8edf0;text-align:center}
+tr:nth-child(even) td{background:#fafbfc}
+tr:nth-child(odd) td{background:#fff}
+tbody tr:hover td{background:#eef5fa}
+tr:last-child td{border-bottom:0}
+.who{display:flex;align-items:center;gap:10px;min-width:210px}
+.who b{font-weight:600}
+.av{flex:none;width:32px;height:32px;border-radius:50%;background:var(--tab);display:grid;place-items:center;font-size:12.5px;font-weight:700;color:var(--deep)}
+.seg{display:flex;gap:2px;margin-top:3px}
+.seg i{width:16px;height:5px;border-radius:2px;background:#d9c2ba}
+.seg i.on{background:var(--ok)}
+.c{position:relative;display:flex;flex-direction:column;align-items:center;gap:0;padding:5px 4px;border-radius:7px;cursor:pointer;min-width:96px}
+.c input{position:absolute;opacity:0;inset:0;cursor:pointer}
+.c .ico{font-size:17px;font-weight:700;line-height:1.2}
+.c em{font-style:normal;font-size:11.5px}
+.c.y{background:var(--okbg);color:var(--ok)}
+.c.n{background:var(--missbg);color:var(--miss)}
+.c:has(input:focus-visible){outline:3px solid #7fb0e0}
+.st{font-size:13px;text-align:left;min-width:190px}
+.st.ok{color:var(--ok);font-weight:600}
+.st.no{color:var(--miss)}
+
+/* cartões (pastas) */
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(310px,1fr));gap:28px 18px}
+.folder{position:relative;background:var(--card);border:1px solid var(--line);border-radius:0 10px 10px 10px;padding:14px 16px;margin-top:14px}
+.folder::before{content:"";position:absolute;top:-14px;left:-1px;width:96px;height:14px;background:var(--tab);border:1px solid var(--line);border-bottom:0;border-radius:8px 8px 0 0}
+.folder.done{border-left:5px solid var(--ok)}.folder.pend{border-left:5px solid var(--miss)}
+.folder .top{display:flex;gap:10px;align-items:center;margin-bottom:8px}
+.folder h3{margin:0;font-size:16px;line-height:1.2}
+.badge{margin-left:auto;font-size:12px;font-weight:600;padding:2px 9px;border-radius:99px;white-space:nowrap}
+.done .badge{background:var(--okbg);color:var(--ok)}.pend .badge{background:var(--missbg);color:var(--miss)}
+.folder .seg{margin:0 0 8px}.folder .seg i{flex:1;height:6px}
+.folder label{display:flex;gap:8px;align-items:flex-start;padding:5px 0;font-size:14px;border-top:1px solid #edf0f2}
+.folder label input{margin-top:3px}
+.folder .arq{display:block;font-size:12px;color:var(--mut);word-break:break-all}
+.folder .tag{margin-left:auto;font-size:12px;color:var(--mut);white-space:nowrap}
+.folder .no{color:var(--miss)}
+
+/* diagnóstico */
+details{font-size:14px}summary{cursor:pointer;color:var(--acc);font-weight:600}
+#diag{margin-top:26px}
+#diag .aviso{color:var(--miss);font-weight:600}
+#diag ul{margin:6px 0;padding-left:20px;color:var(--miss);font-size:13px}
+#diag pre{background:#f4f6f8;border:1px solid var(--line);border-radius:6px;padding:10px;max-height:260px;overflow:auto;font-size:12.5px;white-space:pre-wrap}
+:focus-visible{outline:3px solid #7fb0e0;outline-offset:2px}
+@media(max-width:860px){.sum{grid-template-columns:1fr}header,main{padding-left:16px;padding-right:16px}}
+@media print{header button,.tools,#diag{display:none}}
+</style>
+</head>
+<body>
+<header>
+  <div><h1>Checklist de documentos – Ativos</h1><small><span class="dot" id="dot"></span><span id="status">Nenhuma pasta conectada</span></small></div>
+  <div>
+    <button id="btnPasta">Selecionar pasta #ATIVOS</button>
+    <button id="btnScan" class="sec" hidden>Atualizar agora</button>
+    <button id="btnCsv" class="sec" hidden>Exportar CSV</button>
+  </div>
+</header>
+<main>
+  <div id="intro" class="msg">
+    Clique em <b>Selecionar pasta #ATIVOS</b> e escolha:<br>
+    <code>\\brs-ifs028\ho_002$\br_IND\8. OP\- 5000000 - ADM IF\#Controles\Equipe\Documentos Equipe\#ATIVOS</code><br><br>
+    A escolha fica lembrada neste navegador (use Chrome ou Edge).<br><br><small>Para abrir sozinho ao ligar o PC: aperte Win+R, digite <code>shell:startup</code> e coloque ali um atalho para este arquivo.</small>
+  </div>
+  <div id="app" hidden>
+    <div id="resumo"></div>
+    <div class="tools"><input type="search" id="busca" placeholder="Buscar pessoa" aria-label="Buscar pessoa"><span id="filtros"></span></div>
+    <p class="info" id="info"></p>
+    <div id="grid"></div>
+  </div>
+  <details id="diag" class="panel" hidden><summary>Diagnóstico da leitura</summary><div id="diagBody"></div></details>
+</main>
+<script>
+/* Palavras que o sistema procura no NOME dos arquivos/subpastas (sem acento, minúsculas).
+   Se as pessoas nomeiam os arquivos de outro jeito, é aqui que você ajusta. */
+const DOCS=[
+ {k:'end',n:'Comprovante de endereço',re:/endere|residenc/},
+ {k:'cnpj',n:'CNPJ',re:/cnpj/},
+ {k:'banco',n:'Comprovante bancário',re:/banc|agencia/},
+ {k:'cond',n:'Código de Conduta',re:/cond[uo]t/},
+ {k:'integ',n:'Código de Integridade',re:/integri/}
+];
+const JSON_NAME='_checklist_dados.json';
+const INTERVALO=5000;       // pausa mínima entre verificações contínuas (ms)
+const LISTAGENS=10;         // listagens de pasta simultâneas (evita erro em pasta de rede)
+const MAX_NIVEL=6;          // quantos níveis de subpasta dentro de cada pessoa
+const PARALELO=8;           // pastas lidas ao mesmo tempo
+const IGN_ARQ=/^(~\$|\.|thumbs\.db$|desktop\.ini$)/i;
+const S={log:[],handle:null,pessoas:{},manual:{},ignorar:'',last:null,ts:null,lastMs:0,dur:0,erros:[],scanning:false,manVer:0,salvando:0,novos:new Map(),aviso:'',hora:'',ultMud:'',timer:null,filtro:'todos',busca:'',diagP:'',docF:'',ordem:'falta',vista:'matriz'};
+const $=s=>document.querySelector(s);
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const norm=s=>s.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
+const hoje=()=>new Date().toLocaleDateString('sv-SE');
+const cmp=(a,b)=>a.localeCompare(b,'pt-BR');
+const setStatus=t=>{$('#status').textContent=t};
+
+/* ---- guarda a pasta escolhida (IndexedDB) ---- */
+let _db=null;
+const idb=()=>_db||(_db=new Promise((res,rej)=>{const r=indexedDB.open('ativos',1);r.onupgradeneeded=()=>r.result.createObjectStore('kv');r.onsuccess=()=>{r.result.onclose=()=>{_db=null};res(r.result)};r.onerror=()=>{_db=null;rej(r.error)}}));
+async function kv(mode,key,val){const db=await idb();return new Promise((res,rej)=>{const t=db.transaction('kv',mode==='get'?'readonly':'readwrite').objectStore('kv');const q=mode==='get'?t.get(key):t.put(val,key);q.onsuccess=()=>res(q.result);q.onerror=()=>rej(q.error)})}
+async function perm(h,ask){
+  const o={mode:'readwrite'};
+  try{if(await h.queryPermission(o)==='granted')return true;return !!ask&&await h.requestPermission(o)==='granted'}catch(e){return false}
+}
+
+/* ---- cache local: a tela abre na hora com o último resultado salvo ---- */
+const montar=files=>{files.sort();const nf=files.map(norm),docs={};DOCS.forEach(d=>docs[d.k]=files.filter((f,i)=>d.re.test(nf[i])));return{files,docs,sig:files.join('|')}};
+const guardarCache=()=>kv('set','cache',{v:1,pessoas:Object.fromEntries(Object.entries(S.pessoas).map(([n,p])=>[n,p.files])),manual:S.manual,ignorar:S.ignorar,ts:S.ts,hora:S.hora,ms:S.lastMs}).catch(()=>{});
+const nv=n=>Date.now()-(S.novos.get(n)||0)<5000?'novo':'';
+const setDot=c=>{$('#dot').className='dot '+c};
+function atualizarStatus(){
+  if(!S.handle)return;
+  setStatus('Ao vivo · verificado às '+S.hora+(S.obsOk?' · monitorando a pasta':' · verificação contínua')+(S.ultMud?' · última mudança às '+S.ultMud:'')+(S.erros.length?' · '+S.erros.length+' erro(s), veja o diagnóstico':'')+(S.aviso?' · '+S.aviso:''));
+}
+let rt=null;const pedirRender=()=>{if(!rt)rt=setTimeout(()=>{rt=null;render()},600)};
+
+/* ---- leitura da pasta (nunca para por causa de uma subpasta com erro) ---- */
+let ativos=0;const espera=[];
+async function vaga(){if(ativos>=LISTAGENS)await new Promise(r=>espera.push(r));else ativos++}   // quem espera herda a vaga de quem saiu
+function libera(){const w=espera.shift();if(w)w();else ativos--}
+const dorme=ms=>new Promise(r=>setTimeout(r,ms));
+async function walk(dir,nivel,path,out,errs){
+  const subs=[];
+  await vaga();
+  try{
+    for await(const e of dir.values()){
+      if(IGN_ARQ.test(e.name))continue;
+      if(e.kind==='file'){if(e.name!==JSON_NAME)out.push(path+e.name)}
+      else if(nivel<MAX_NIVEL)subs.push(e);
+    }
+  }catch(err){errs.push((path||'(raiz)')+' → '+(err.message||err.name))}
+  finally{libera()}
+  await Promise.all(subs.map(s=>walk(s,nivel+1,path+s.name+'/',out,errs)));   // subpastas em paralelo
+}
+/* silent=true: verificação em segundo plano; só redesenha/grava se algo mudou */
+async function registrar(evs){   // histórico de atividade (guardado no navegador) + aviso do sistema
+  const h=new Date().toLocaleString('pt-BR');
+  S.log=[...evs.map(([p,t,c])=>({ts:h,p,t,c})),...S.log].slice(0,200);
+  kv('set','log',S.log).catch(()=>{});
+  try{if(document.hidden&&'Notification' in window&&Notification.permission==='granted')
+    new Notification('Checklist de Ativos',{body:evs.slice(0,3).map(e=>e[0]+': '+e[1]+(e[2]?' '+e[2].split('/').pop():'')).join('\n')+(evs.length>3?'\n+'+(evs.length-3)+' mudanças':'')})}catch(e){}
+}
+async function scan(opt){
+  const silent=!!(opt&&opt.silent);
+  if(!S.handle)return;
+  if(S.scanning){if(!silent)S.pendFull=true;return}
+  S.scanning=true;S.erros=[];const t0=Date.now();setDot('live busy');
+  const antigos=S.pessoas,progressivo=!S.jaLeu;
+  try{
+    if(!silent)setStatus('Lendo pasta…');
+    const mudouManual=await carregarJson();
+    const ign=S.ignorar.split(',').map(s=>norm(s.trim())).filter(Boolean);
+    const dirs=[];
+    for await(const e of S.handle.values()){
+      if(e.kind!=='directory'||e.name.startsWith('_')||e.name.startsWith('.')||ign.includes(norm(e.name)))continue;
+      dirs.push(e);
+    }
+    const novo={},fila=[...dirs];let feitos=0;
+    if(progressivo)S.pessoas=novo;            // 1ª leitura: as pessoas vão aparecendo na tela
+    const worker=async()=>{
+      while(fila.length){
+        const e=fila.shift();let files,errs;
+        for(let i=0;i<3;i++){          // arquivo movido durante a leitura etc.: tenta de novo
+          files=[];errs=[];await walk(e,0,'',files,errs);
+          if(!errs.length)break;await dorme(400*(i+1));
+        }
+        S.erros.push(...errs.map(x=>e.name+'/'+x));
+        novo[e.name]=(errs.length&&antigos[e.name])?antigos[e.name]:montar(files);   // erro de rede: mantém o que já sabia
+        feitos++;
+        if(progressivo){setStatus('Lendo pastas… '+feitos+' de '+dirs.length);pedirRender()}
+      }
+    };
+    await Promise.all(Array.from({length:Math.min(PARALELO,dirs.length)},worker));
+    const mud=[];
+    if(!progressivo){
+      for(const n in novo)if(!antigos[n]||antigos[n].sig!==novo[n].sig)mud.push(n);
+      for(const n in antigos)if(!novo[n])mud.push(n);
+    }
+    if(!progressivo&&mud.length){const evs=[];
+      for(const n of mud){const a=new Set(antigos[n]?.files||[]),b=new Set(novo[n]?.files||[]);
+        if(!antigos[n])evs.push([n,'pasta nova','']);else if(!novo[n])evs.push([n,'pasta removida','']);
+        for(const f of b)if(!a.has(f))evs.push([n,'adicionado',f]);
+        for(const f of a)if(!b.has(f))evs.push([n,'removido',f])}
+      if(evs.length)registrar(evs)}
+    S.pessoas=novo;S.jaLeu=true;const d=new Date();
+    S.ts=d.toLocaleString('pt-BR');S.hora=d.toLocaleTimeString('pt-BR');S.last=hoje();S.lastMs=Date.now();S.dur=Date.now()-t0;
+    if(mud.length){S.ultMud=S.hora;mud.forEach(n=>S.novos.set(n,Date.now()))}
+    if(progressivo||mud.length||mudouManual){
+      render();await guardarCache();
+      if(progressivo||mud.length)await salvar();
+    }else renderDiag();
+    atualizarStatus();
+    if(!silent&&(S.erros.length||!dirs.length||DOCS.some(x=>dirs.length&&Object.values(novo).every(p=>!p.docs[x.k].length))))$('#diag').open=true;
+  }catch(err){
+    S.erros.push('Falha geral: '+(err.message||err.name));
+    if(Object.keys(S.pessoas).length)setStatus('Sem acesso à pasta agora ('+(err.message||err.name)+') · mostrando os últimos dados e tentando de novo');
+    else{setStatus('Erro ao ler a pasta: '+(err.message||err.name)+' · veja o diagnóstico');$('#intro').hidden=true;$('#app').hidden=false;renderDiag();$('#diag').open=true}
+  }finally{
+    S.scanning=false;setDot('live');
+    if(S.pendFull){S.pendFull=false;scan({silent:true})}
+  }
+}
+function agendar(){
+  clearTimeout(S.timer);
+  S.timer=setTimeout(async()=>{
+    try{if(S.handle&&!document.hidden&&!S.scanning)await scan({silent:true})}catch(e){}
+    agendar();   // sempre reagenda, mesmo se a leitura falhar
+  },document.hidden?60000:Math.max(INTERVALO,Math.round(S.dur*1.5)));   // espaça mais só se a rede estiver lenta
+}
+function iniciarObs(){   // FileSystemObserver: o Chrome avisa na hora que algo mudou (quando disponível)
+  try{S.obs?.disconnect()}catch(e){}
+  S.obs=null;S.obsOk=false;
+  if(!('FileSystemObserver' in window))return;
+  try{
+    S.obs=new FileSystemObserver(recs=>{
+      const rel=recs.some(r=>{const c=r.relativePathComponents||[];return !(c.length===1&&(c[0]===JSON_NAME||c[0][0]==='_'||c[0][0]==='.'))});
+      if(!rel)return;   // ignora o próprio arquivo de marcações, para não entrar em ciclo
+      clearTimeout(S.deb);S.deb=setTimeout(()=>{if(S.scanning)S.pendFull=true;else scan({silent:true})},1000);
+    });
+    Promise.resolve(S.obs.observe(S.handle,{recursive:true})).then(()=>{S.obsOk=true}).catch(()=>{S.obsOk=false});
+  }catch(e){S.obsOk=false}
+}
+
+/* ---- dados salvos na própria pasta (marcações manuais) ---- */
+async function carregarJson(){
+  if(S.salvando)return false;
+  const v=S.manVer;
+  try{
+    const f=await(await S.handle.getFileHandle(JSON_NAME)).getFile();
+    const j=JSON.parse(await f.text());
+    if(v!==S.manVer||S.salvando)return false;       // você marcou algo durante a leitura: não sobrescrever
+    const m=j.manual||{},ig=j.ignorar||'';
+    const mud=JSON.stringify(m)!==JSON.stringify(S.manual)||ig!==S.ignorar;
+    S.manual=m;S.ignorar=ig;return mud;
+  }catch(e){
+    if(e.name!=='NotFoundError')S.erros.push(JSON_NAME+': '+(e.message||e.name));
+    return false;
+  }
+}
+async function salvar(){
+  S.salvando++;
+  try{
+    const out={ultimaVarredura:S.ts,ultimaData:S.last,ignorar:S.ignorar,manual:S.manual,
+      resumo:Object.fromEntries(Object.keys(S.pessoas).map(n=>[n,situacao(n)]))};
+    const w=await(await S.handle.getFileHandle(JSON_NAME,{create:true})).createWritable();
+    await w.write(JSON.stringify(out,null,2));await w.close();S.aviso='';
+  }catch(e){S.aviso='não foi possível salvar na pasta: '+(e.message||e.name)}
+  finally{S.salvando--}
+  atualizarStatus();
+}
+
+/* ---- regras ----
+   manual[pessoa][doc]: true = marcado à mão · 'nao' = ignorar o arquivo encontrado */
+const achou=(n,k)=>S.pessoas[n].docs[k].length>0;
+const tem=(n,k)=>{const m=S.manual[n]?.[k];return m==='nao'?false:(achou(n,k)||m===true)};
+function situacao(n){const faltam=DOCS.filter(d=>!tem(n,d.k)).map(d=>d.n);return{completo:faltam.length===0,faltam}}
+const ini=n=>n.split(/\s+/).filter(Boolean).slice(0,2).map(w=>w[0]).join('').toUpperCase();
+const seg=n=>'<div class="seg">'+DOCS.map(d=>`<i class="${tem(n,d.k)?'on':''}" title="${esc(d.n)}"></i>`).join('')+'</div>';
+const base=f=>f.split('/').pop();
+
+/* ---- resumo no topo ---- */
+function resumo(nomes){
+  const tot=nomes.length,comp=nomes.filter(n=>situacao(n).completo).length;
+  const slots=tot*DOCS.length,tem_=nomes.reduce((s,n)=>s+DOCS.filter(d=>tem(n,d.k)).length,0);
+  const pct=slots?Math.round(tem_/slots*100):0,C=2*Math.PI*52;
+  return `<div class="sum">
+   <div class="panel hero">
+    <svg width="130" height="130" viewBox="0 0 130 130" role="img" aria-label="${pct}% dos documentos entregues">
+     <circle cx="65" cy="65" r="52" fill="none" stroke="var(--missbg)" stroke-width="16"/>
+     <circle cx="65" cy="65" r="52" fill="none" stroke="var(--ok)" stroke-width="16" stroke-linecap="round" stroke-dasharray="${C*pct/100} ${C}" transform="rotate(-90 65 65)"/>
+     <text x="65" y="73" text-anchor="middle" font-size="26" font-weight="700" fill="currentColor">${pct}%</text></svg>
+    <div><h2>Documentos entregues</h2><p>${tem_} de ${slots} documentos esperados</p>
+     <div class="stats"><div><b>${tot}</b><span>pessoas</span></div><div class="g"><b>${comp}</b><span>com tudo</span></div><div class="r"><b>${tot-comp}</b><span>com pendência</span></div><div class="r"><b>${slots-tem_}</b><span>documentos faltando</span></div></div></div>
+   </div>
+   <div class="panel cov"><h2>Cobertura por documento</h2>
+    <div class="list">${DOCS.map(d=>{const f=nomes.filter(n=>!tem(n,d.k)).length,p=tot?Math.round((tot-f)/tot*100):0;
+     return `<button class="tile ${S.docF===d.k?'on':''}" data-d="${d.k}" aria-pressed="${S.docF===d.k}"><strong>${esc(d.n)}</strong><span class="n"><span>${tot-f} de ${tot} (${p}%)</span><b>${f?'faltam '+f:'completo'}</b></span><div class="trk"><i style="width:${p}%"></i></div></button>`}).join('')}</div>
+    <p class="hint">Clique em um documento para ver só quem ainda não entregou.</p></div></div>`;
+}
+
+/* ---- tela ---- */
+function celula(n,d){
+  const arqs=S.pessoas[n].docs[d.k],a=arqs.length>0,chk=tem(n,d.k);
+  const sub=a?(chk?arqs.length+(arqs.length>1?' arquivos':' arquivo'):'ignorado'):(chk?'marcado à mão':'falta');
+  return `<label class="c ${chk?'y':'n'}" title="${esc(arqs.join('\n')||d.n)}"><input type="checkbox" data-n="${encodeURIComponent(n)}" data-k="${d.k}" ${chk?'checked':''} aria-label="${esc(d.n)} de ${esc(n)}"><span class="ico">${chk?'✓':'✕'}</span><em>${sub}</em></label>`;
+}
+function matriz(lista){
+  return `<div class="mx"><table><thead><tr><th>Pessoa</th>${DOCS.map(d=>`<th>${esc(d.n)}</th>`).join('')}<th style="text-align:left">Situação</th></tr></thead><tbody>${lista.map(n=>{
+   const st=situacao(n);
+   return `<tr class="${nv(n)}"><td><div class="who"><span class="av">${esc(ini(n))}</span><div><b>${esc(n)}</b>${seg(n)}</div></div></td>${DOCS.map(d=>`<td>${celula(n,d)}</td>`).join('')}<td class="st ${st.completo?'ok':'no'}">${st.completo?'Tudo certo':'Faltam '+st.faltam.length+': '+esc(st.faltam.join(', '))}</td></tr>`}).join('')}</tbody></table></div>`;
+}
+function cartoes(lista){
+  return '<div class="grid">'+lista.map(n=>{
+    const st=situacao(n),ok=DOCS.length-st.faltam.length;
+    return `<section class="folder ${st.completo?'done':'pend'} ${nv(n)}"><div class="top"><span class="av">${esc(ini(n))}</span><h3>${esc(n)}</h3><span class="badge">${st.completo?'Completo':ok+' de '+DOCS.length}</span></div>${seg(n)}
+     ${DOCS.map(d=>{
+       const arqs=S.pessoas[n].docs[d.k],a=arqs.length>0,chk=tem(n,d.k);
+       const tag=a?(chk?'':'ignorado'):(chk?'marcado à mão':'falta');
+       const det=a?`<span class="arq" title="${esc(arqs.join('\n'))}">${esc(base(arqs[0]))}${arqs.length>1?' + '+(arqs.length-1)+' outro(s)':''}</span>`:'';
+       return `<label><input type="checkbox" data-n="${encodeURIComponent(n)}" data-k="${d.k}" ${chk?'checked':''}><span>${esc(d.n)}${det}</span><span class="tag ${chk?'':'no'}">${tag}</span></label>`;
+     }).join('')}</section>`;
+  }).join('')+'</div>';
+}
+function render(){
+  $('#intro').hidden=true;$('#app').hidden=false;$('#btnScan').hidden=false;$('#btnCsv').hidden=false;
+  const todos=Object.keys(S.pessoas).sort(cmp);
+  $('#resumo').innerHTML=todos.length?resumo(todos):'';
+  const F=(k,t)=>`<button class="${S.filtro===k?'on':''}" data-f="${k}">${t}</button>`;
+  const V=(k,t)=>`<button class="${S.vista===k?'on':''}" data-v="${k}">${t}</button>`;
+  const nP=todos.filter(n=>!situacao(n).completo).length;document.title=(todos.length?'('+nP+' pendentes) ':'')+'Checklist de Documentos – Ativos';
+  $('#filtros').innerHTML=F('todos','Todos ('+todos.length+')')+F('pend','Pendentes ('+nP+')')+F('ok','Completos ('+(todos.length-nP)+')')+'<span class="sep"></span>'+
+   `<label>Ordenar: <select id="ordem"><option value="falta" ${S.ordem==='falta'?'selected':''}>Mais pendências primeiro</option><option value="nome" ${S.ordem==='nome'?'selected':''}>Nome (A–Z)</option></select></label><span class="sep"></span>`+V('matriz','Matriz')+V('cartoes','Pastas');
+  if(!todos.length){$('#info').textContent='';$('#grid').innerHTML='<div class="msg">Nenhuma subpasta de pessoa encontrada nesta pasta. Confira se você escolheu a pasta #ATIVOS (a que contém uma subpasta por pessoa).</div>';renderDiag();return}
+  let lista=todos.filter(n=>norm(n).includes(norm(S.busca)));
+  if(S.filtro!=='todos')lista=lista.filter(n=>(S.filtro==='ok')===situacao(n).completo);
+  if(S.docF)lista=lista.filter(n=>!tem(n,S.docF));
+  if(S.ordem==='falta')lista.sort((a,b)=>situacao(b).faltam.length-situacao(a).faltam.length||cmp(a,b));
+  const dn=DOCS.find(d=>d.k===S.docF);
+  $('#info').innerHTML=`Mostrando <b>${lista.length}</b> de ${todos.length} pessoas`+(dn?` sem <b>${esc(dn.n)}</b> <button data-d="${dn.k}">Limpar filtro</button>`:'')+' · clique em ✓ ou ✕ para corrigir à mão';
+  const sl=$('.mx')?.scrollLeft||0;
+  $('#grid').innerHTML=lista.length?(S.vista==='matriz'?matriz(lista):cartoes(lista)):'<div class="msg">Nada encontrado com esses filtros.</div>';
+  if(sl&&$('.mx'))$('.mx').scrollLeft=sl;
+  renderDiag();
+}
+function renderDiag(){
+  const d=$('#diag');d.hidden=!S.handle;if(!S.handle||['ign','diagPessoa'].includes(document.activeElement?.id))return;
+  const nomes=Object.keys(S.pessoas).sort(cmp);
+  const arqs=nomes.reduce((s,n)=>s+S.pessoas[n].files.length,0);
+  const semAch=DOCS.filter(x=>nomes.length&&nomes.every(n=>!achou(n,x.k)));
+  if(!S.diagP||!S.pessoas[S.diagP])S.diagP=nomes[0]||'';
+  $('#diagBody').innerHTML=
+   `<p><b>Pasta lida:</b> ${esc(S.handle.name)} · verificada às ${S.hora} · ${nomes.length} subpastas · ${arqs} arquivos · ${(S.dur/1000).toFixed(1)} s</p>`+
+   (semAch.length?`<p class="aviso">Ninguém teve detectado automaticamente: ${semAch.map(x=>esc(x.n)).join(', ')}. Provavelmente os arquivos têm nomes diferentes dos que o sistema procura. Veja os nomes reais abaixo e ajuste as palavras da lista DOCS no início do código.</p>`:'')+
+   (S.erros.length?`<p class="aviso">${S.erros.length} erro(s) durante a leitura:</p><ul>${S.erros.slice(0,20).map(e=>`<li>${esc(e)}</li>`).join('')}</ul>`:'')+
+   `<p><label>Ignorar subpastas (nomes separados por vírgula): <input id="ign" value="${esc(S.ignorar)}"></label> <button id="btnIgn">Aplicar e reler</button></p>`+
+   `<p><label>Ver arquivos de: <select id="diagPessoa">${nomes.map(n=>`<option ${n===S.diagP?'selected':''}>${esc(n)}</option>`).join('')}</select></label></p><pre id="diagFiles"></pre><p><b>Atividade recente</b></p><pre>${esc(S.log.map(e=>e.ts+' · '+e.p+' · '+e.t+(e.c?' · '+e.c:'')).join('\n')||'(nenhuma mudança registrada ainda)')}</pre>`;
+  mostrarArquivos();
+}
+function mostrarArquivos(){
+  const p=S.pessoas[S.diagP];const el=$('#diagFiles');if(!el)return;
+  el.textContent=p?(p.files.length?p.files.join('\n'):'(nenhum arquivo encontrado nesta pasta)'):'';
+}
+
+/* ---- exportar ---- */
+function csv(){
+  const q=v=>'"'+String(v).replace(/"/g,'""')+'"';
+  const linhas=[['Pessoa',...DOCS.map(d=>d.n),'Situação'].map(q).join(';')];
+  Object.keys(S.pessoas).sort(cmp).forEach(n=>{
+    const st=situacao(n);
+    linhas.push([n,...DOCS.map(d=>tem(n,d.k)?'Sim':'Não'),st.completo?'Completo':'Falta: '+st.faltam.join(', ')].map(q).join(';'));
+  });
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob(['\ufeff'+linhas.join('\r\n')],{type:'text/csv;charset=utf-8'}));
+  a.download='checklist-ativos-'+hoje()+'.csv';a.click();
+  setTimeout(()=>URL.revokeObjectURL(a.href),2000);
+}
+
+/* ---- eventos ---- */
+$('#busca').addEventListener('input',e=>{S.busca=e.target.value;render()});
+document.addEventListener('click',async e=>{
+  const b=e.target.closest?.('[data-f],[data-d],[data-v]');
+  if(b){
+    if(b.dataset.f)S.filtro=b.dataset.f;
+    if(b.dataset.v)S.vista=b.dataset.v;
+    if(b.dataset.d)S.docF=S.docF===b.dataset.d?'':b.dataset.d;
+    render();return;
+  }
+  if(e.target.id==='btnIgn'){S.ignorar=$('#ign').value;S.manVer++;await salvar();await scan()}
+});
+document.addEventListener('change',async e=>{
+  const t=e.target;
+  if(t.id==='ordem'){S.ordem=t.value;render();return}
+  if(t.id==='diagPessoa'){S.diagP=t.value;mostrarArquivos();return}
+  if(!t.dataset?.k)return;
+  if(!S.handle){setStatus('Reconecte a pasta para poder marcar.');render();return}
+  const n=decodeURIComponent(t.dataset.n),k=t.dataset.k,m=(S.manual[n]??={});
+  if(achou(n,k)){if(t.checked)delete m[k];else m[k]='nao'}
+  else{if(t.checked)m[k]=true;else delete m[k]}
+  if(!Object.keys(m).length)delete S.manual[n];
+  S.manVer++;render();await salvar();await guardarCache();
+});
+document.addEventListener('click',()=>{try{if('Notification' in window&&Notification.permission==='default')Notification.requestPermission()}catch(e){}},{once:true});
+$('#btnScan').onclick=()=>S.handle?scan():(S.reconectar?S.reconectar():escolher());
+$('#btnCsv').onclick=csv;
+
+/* ---- conexão e rotina automática ---- */
+async function conectar(h){
+  S.handle=h;await kv('set','pasta',h);
+  $('#btnPasta').textContent='Trocar pasta';$('#btnPasta').onclick=escolher;
+  setDot('live');iniciarObs();
+  await scan({silent:Object.keys(S.pessoas).length>0});   // com cache na tela, a leitura é silenciosa
+  agendar();
+}
+function erroPasta(e){
+  const iframe=window.self!==window.top;
+  let dica='';
+  if(iframe)dica='Esta página está aberta dentro de outra página (pré-visualização), que bloqueia o acesso a pastas. Baixe o arquivo e abra-o direto no Chrome ou Edge (duplo clique no arquivo).';
+  else if(e.name==='SecurityError')dica='O navegador bloqueou esta pasta (raiz do disco, Downloads e pastas de sistema não são permitidas). Escolha a própria pasta #ATIVOS; se for pasta de rede, tente mapeá-la como unidade (ex.: Z:) e escolha por ela.';
+  else if(e.name==='NotAllowedError')dica='Permissão negada. Clique de novo e escolha "Permitir".';
+  const msg=(e.name||'Erro')+(e.message?': '+e.message:'');
+  setStatus('Erro ao abrir a pasta · '+msg+(dica?' · '+dica:''));
+  if($('#app').hidden){$('#intro').hidden=false;$('#intro').innerHTML='<b>Não foi possível abrir a pasta.</b><br>'+esc(msg)+(dica?'<br><br>'+esc(dica):'')}
+}
+window.addEventListener('error',e=>setStatus('Erro inesperado: '+(e.message||e)));
+window.addEventListener('unhandledrejection',e=>setStatus('Erro inesperado: '+((e.reason&&e.reason.message)||e.reason)));
+async function escolher(){
+  try{
+    const h=await showDirectoryPicker({id:'ativos',mode:'readwrite'});
+    S.pessoas={};S.manual={};S.ignorar='';S.novos.clear();await kv('set','cache',null);
+    $('#app').hidden=true;$('#intro').hidden=false;$('#intro').innerHTML='<b>Lendo a pasta pela primeira vez…</b>';
+    await conectar(h);
+  }catch(e){if(e.name!=='AbortError')erroPasta(e)}
+}
+(async()=>{
+  if(!window.showDirectoryPicker){
+    $('#intro').innerHTML='<b>Este navegador não permite acessar pastas.</b><br>Abra esta página no Google Chrome ou no Microsoft Edge, no computador.';
+    $('#btnPasta').disabled=true;setStatus('Navegador não compatível');return;
+  }
+  $('#btnPasta').onclick=escolher;
+  let h,c=null;
+  try{h=await kv('get','pasta')}catch(e){setStatus('Não foi possível lembrar a pasta: '+(e.message||e.name));return}
+  if(!h)return;
+  try{c=await kv('get','cache')}catch(e){c=null}
+  try{S.log=(await kv('get','log'))||[]}catch(e){S.log=[]}
+  try{navigator.storage?.persist?.()}catch(e){}
+  if(c&&c.v===1&&c.pessoas)try{   // mostra o último resultado imediatamente, sem esperar a pasta
+    S.pessoas=Object.fromEntries(Object.entries(c.pessoas).map(([n,f])=>[n,montar(f)]));
+    S.manual=c.manual||{};S.ignorar=c.ignorar||'';S.ts=c.ts;S.hora=c.hora||'';S.lastMs=c.ms||0;
+    S.jaLeu=true;render();setStatus('Dados salvos de '+c.ts+' · atualizando em segundo plano…');
+  }catch(e){S.pessoas={};S.manual={};S.jaLeu=false;c=null;kv('set','cache',null).catch(()=>{})}   // cache inválido: descarta e lê de novo
+  $('#btnPasta').textContent='Reconectar pasta';
+  if(await perm(h,false))await conectar(h);
+  else{
+    setStatus((c?'Mostrando dados salvos de '+c.ts+' · ':'Pasta lembrada · ')+'clique em Reconectar e permita o acesso para atualizar ao vivo');
+    S.reconectar=async()=>{
+      try{if(await perm(h,true))await conectar(h);else setStatus('Acesso não liberado. Clique em Reconectar e escolha "Permitir".')}
+      catch(e){erroPasta(e)}
+    };
+    $('#btnPasta').onclick=S.reconectar;
+  }
+})();
+// ao voltar para a aba, verifica logo (se a última verificação já tem mais de 10 s)
+document.addEventListener('visibilitychange',()=>{if(!document.hidden&&S.handle&&Date.now()-S.lastMs>10000)scan({silent:true})});
+</script>
+</body>
+</html>

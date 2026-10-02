@@ -4,108 +4,114 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Checklist de Documentos – Ativos</title>
-<link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;700;800&family=Hanken+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <style>
-:root{--bg:#edf0f2;--card:#fff;--ink:#14212b;--mut:#5b6976;--line:#d6dde2;--acc:#1d5f8c;--ok:#0e7a5a;--okbg:#e0f3ea;--miss:#bf3f1c;--missbg:#fbe8e1;--tab:#d9e2e8;--deep:#11242f}
+:root{--bg:#e8ebe9;--card:#fbfcfb;--ink:#17201e;--mut:#5e6b67;--line:#d1d8d5;--acc:#e0a526;--link:#17615a;--ok:#2b8a57;--okbg:#dff0e5;--miss:#c4432b;--missbg:#f8e1d9;--tab:#d6e0dd;--deep:#133834;--rail2:#9dbab3}
 *{box-sizing:border-box}
 [hidden]{display:none!important}
-body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 "Instrument Sans",system-ui,"Segoe UI",sans-serif}
-header{display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between;padding:18px 28px;background:var(--deep);color:#fff}
-h1{margin:0;font-size:21px;font-weight:700}
-header small{color:#a9bac6;display:block;font-size:13px}
-button{font:inherit;cursor:pointer;border:1px solid var(--acc);background:var(--acc);color:#fff;padding:8px 14px;border-radius:6px}
+body{margin:0;display:grid;grid-template-columns:272px minmax(0,1fr);min-height:100vh;background:var(--bg);color:var(--ink);font:15px/1.55 "Hanken Grotesk",system-ui,"Segoe UI",sans-serif}
+h1,h2,h3,.who b,th,.stats b{font-family:"Bricolage Grotesque","Hanken Grotesk",system-ui,sans-serif}
+button{font:inherit;cursor:pointer;border:1px solid var(--link);background:var(--link);color:#fff;padding:7px 12px;border-radius:3px}
 button:disabled{opacity:.5;cursor:not-allowed}
-button.sec{background:transparent;color:#fff;border-color:#6d8090}
-main{padding:22px 28px 40px;max-width:1440px;margin:auto}
-.msg{padding:40px;text-align:center;color:var(--mut)}
-#status{font-size:13px}
-
-/* resumo */
-.sum{display:grid;grid-template-columns:minmax(300px,420px) 1fr;gap:18px;margin-bottom:20px}
-.panel{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:16px 18px}
-.hero{display:flex;gap:18px;align-items:center}
-.hero svg{flex:none}
-.hero h2,.cov h2{margin:0 0 4px;font-size:16px}
+header{position:sticky;top:0;height:100vh;overflow-y:auto;display:flex;flex-direction:column;gap:26px;padding:34px 22px 28px;background:var(--deep);color:#e9f2ef}
+h1{margin:0;font-size:31px;line-height:1.02;font-weight:800;letter-spacing:-.025em}
+header small{display:block;color:var(--rail2);font-size:13px;line-height:1.6;margin-top:16px}
+#status{white-space:pre-line}
+header>div:last-child{display:flex;flex-direction:column;gap:8px}
+header button{width:100%;text-align:left;padding:10px 13px;font-weight:500}
+#btnPasta{background:var(--acc);border-color:var(--acc);color:#2b2000;font-weight:700}
+header button.sec{background:transparent;color:#e9f2ef;border-color:#3f655f}
+header button.sec:hover{background:#1c4a45}
+main{padding:36px 44px 64px;max-width:1380px;width:100%}
+.msg{padding:70px 0;max-width:560px;color:var(--mut);line-height:1.75}
+.sum{display:grid;grid-template-columns:minmax(300px,380px) 1fr;gap:56px;margin-bottom:34px;padding-bottom:30px;border-bottom:2px solid var(--ink)}
+.panel{background:none;border:0;padding:0}
+.hero{display:flex;gap:22px;align-items:center}
+.hero svg{flex:none;width:150px;height:150px}
+.hero h2,.cov h2{margin:0 0 4px;font-size:20px;font-weight:700;letter-spacing:-.01em}
 .hero p{margin:0;color:var(--mut);font-size:13.5px}
-.stats{display:grid;grid-template-columns:1fr 1fr;gap:8px 16px;margin-top:12px}
-.stats b{display:block;font-size:24px;line-height:1.1}
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:10px 18px;margin-top:14px}
+.stats b{display:block;font-size:30px;line-height:1;font-weight:700}
 .stats span{font-size:12.5px;color:var(--mut)}
 .stats .r b{color:var(--miss)}.stats .g b{color:var(--ok)}
-.cov .list{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px;margin-top:10px}
-.tile{display:block;text-align:left;background:#f7f9fa;color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:10px 12px}
-.tile.on{border-color:var(--miss);background:var(--missbg);box-shadow:0 0 0 1px var(--miss)}
-.tile strong{display:block;font-size:14px}
-.tile .n{display:flex;justify-content:space-between;font-size:12.5px;color:var(--mut);margin:2px 0 6px}
-.tile .n b{color:var(--miss)}
-.trk{height:8px;background:var(--missbg);border-radius:4px;overflow:hidden}
+.cov .list{display:block;margin-top:10px}
+.tile{display:grid;grid-template-columns:1fr auto;gap:3px 14px;width:100%;text-align:left;background:none;color:var(--ink);border:0;border-bottom:1px solid var(--line);border-radius:0;padding:9px 10px 10px 12px}
+.tile:hover{background:#eef2f0}
+.tile.on{background:#fff4d6;box-shadow:inset 4px 0 0 var(--acc)}
+.tile strong{font-size:14px;font-weight:600}
+.tile .n{display:flex;gap:10px;justify-content:flex-end;font-size:12.5px;color:var(--mut);margin:0}
+.tile .n b{color:var(--miss);font-weight:600}
+.trk{grid-column:1/-1;height:5px;background:var(--missbg);overflow:hidden}
 .trk i{display:block;height:100%;background:var(--ok)}
-.dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:#7a8a96;margin-right:7px}.dot.live{background:#2fd19a}.dot.busy{animation:pl 1s infinite}@keyframes pl{50%{opacity:.25}}
+.dot{display:inline-block;width:9px;height:9px;border-radius:50%;background:#6f8a84;margin-right:8px}.dot.live{background:var(--acc)}.dot.busy{animation:pl 1s infinite}@keyframes pl{50%{opacity:.25}}
 tr.novo td,.folder.novo{animation:fl 5s ease-out}@keyframes fl{0%,30%{background:#fff0b8}}
 .hint{font-size:12.5px;color:var(--mut);margin:10px 0 0}
-
-/* barra de ferramentas */
-.tools{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:8px;align-items:center}
-#filtros{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
-input[type=search],#ign,select{font:inherit;padding:8px 10px;border:1px solid var(--line);border-radius:6px;background:#fff;color:var(--ink)}
+.tools{display:flex;flex-wrap:wrap;gap:6px 22px;margin-bottom:8px;align-items:center}
+#filtros{display:flex;flex-wrap:wrap;gap:6px 18px;align-items:center}
+input[type=search],#ign,select{font:inherit;padding:7px 4px;border:0;border-bottom:1.5px solid var(--ink);border-radius:0;background:transparent;color:var(--ink)}
+#ign{border:1px solid var(--line);background:#fff;padding:7px 9px;border-radius:3px}
 input[type=search]{min-width:230px}
-.tools button{background:#fff;color:var(--ink);border-color:var(--line)}
-.tools button.on{background:var(--deep);color:#fff;border-color:var(--deep)}
-.sep{width:1px;height:24px;background:var(--line);margin:0 4px}
-.info{font-size:13.5px;color:var(--mut);margin:0 0 12px}
+.tools button{background:none;color:var(--mut);border:0;border-bottom:2px solid transparent;border-radius:0;padding:6px 1px}
+.tools button:hover{color:var(--ink)}
+.tools button.on{color:var(--ink);border-bottom-color:var(--ink);font-weight:600}
+.sep{width:1px;height:22px;background:var(--line)}
+.info{font-size:13.5px;color:var(--mut);margin:6px 0 14px}
 .info button{padding:2px 8px;font-size:12.5px;margin-left:6px}
-
-/* matriz */
-.mx{overflow-x:auto;background:var(--card);border:1px solid var(--line);border-radius:10px}
-table{border-collapse:collapse;width:100%;min-width:820px}
-th{font-size:13px;text-align:center;padding:10px 8px;background:#f3f6f8;border-bottom:1px solid var(--line);font-weight:600}
-th:first-child,td:first-child{text-align:left;position:sticky;left:0;background:inherit;z-index:1}
-td{padding:6px 8px;border-bottom:1px solid #e8edf0;text-align:center}
-tr:nth-child(even) td{background:#fafbfc}
-tr:nth-child(odd) td{background:#fff}
-tbody tr:hover td{background:#eef5fa}
+.mx{overflow-x:auto;background:var(--card);border:1px solid var(--line);border-top:2px solid var(--ink)}
+table{border-collapse:collapse;width:100%;min-width:860px}
+th{font-size:13.5px;text-align:center;padding:12px 8px;background:var(--card);border-bottom:1px solid var(--ink);font-weight:600}
+th:first-child,td:first-child{text-align:left;position:sticky;left:0;z-index:1}
+td{padding:8px;border-bottom:1px solid var(--line);text-align:center;background:var(--card)}
+tbody tr:hover td{background:#f0f4f2}
 tr:last-child td{border-bottom:0}
-.who{display:flex;align-items:center;gap:10px;min-width:210px}
-.who b{font-weight:600}
-.av{flex:none;width:32px;height:32px;border-radius:50%;background:var(--tab);display:grid;place-items:center;font-size:12.5px;font-weight:700;color:var(--deep)}
-.seg{display:flex;gap:2px;margin-top:3px}
-.seg i{width:16px;height:5px;border-radius:2px;background:#d9c2ba}
+.who{display:flex;align-items:center;gap:12px;min-width:220px}
+.who b{font-weight:600;font-size:15.5px}
+.av{flex:none;width:36px;height:36px;border-radius:6px;background:var(--deep);display:grid;place-items:center;font:700 13px "Bricolage Grotesque",sans-serif;color:#e9f2ef}
+.seg{display:flex;gap:2px;margin-top:4px}
+.seg i{width:16px;height:4px;background:var(--line)}
 .seg i.on{background:var(--ok)}
-.c{position:relative;display:flex;flex-direction:column;align-items:center;gap:0;padding:5px 4px;border-radius:7px;cursor:pointer;min-width:96px}
+.c{position:relative;display:flex;flex-direction:column;align-items:center;gap:3px;padding:5px 4px;border-radius:6px;cursor:pointer;min-width:94px}
+.c:hover{background:#eaf0ed}
 .c input{position:absolute;opacity:0;inset:0;cursor:pointer}
-.c .ico{font-size:17px;font-weight:700;line-height:1.2}
-.c em{font-style:normal;font-size:11.5px}
-.c.y{background:var(--okbg);color:var(--ok)}
-.c.n{background:var(--missbg);color:var(--miss)}
-.c:has(input:focus-visible){outline:3px solid #7fb0e0}
+.c .ico{width:28px;height:28px;border-radius:50%;display:grid;place-items:center;font-size:15px;font-weight:700;line-height:1}
+.c.y .ico{background:var(--ok);color:#fff}
+.c.n .ico{border:2px dashed var(--miss);color:var(--miss)}
+.c em{font-style:normal;font-size:11.5px;color:var(--mut)}.c.n em{color:var(--miss)}
+.c:has(input:focus-visible){outline:3px solid var(--acc)}
 .st{font-size:13px;text-align:left;min-width:190px}
-.st.ok{color:var(--ok);font-weight:600}
-.st.no{color:var(--miss)}
-
-/* cartões (pastas) */
-.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(310px,1fr));gap:28px 18px}
-.folder{position:relative;background:var(--card);border:1px solid var(--line);border-radius:0 10px 10px 10px;padding:14px 16px;margin-top:14px}
-.folder::before{content:"";position:absolute;top:-14px;left:-1px;width:96px;height:14px;background:var(--tab);border:1px solid var(--line);border-bottom:0;border-radius:8px 8px 0 0}
+.st.ok{color:var(--ok);font-weight:600}.st.no{color:var(--miss)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(310px,1fr));gap:30px 20px}
+.folder{position:relative;background:var(--card);border:1px solid var(--line);border-radius:0 6px 6px 6px;padding:14px 16px;margin-top:14px}
+.folder::before{content:"";position:absolute;top:-14px;left:-1px;width:92px;height:14px;background:var(--deep);border-radius:5px 5px 0 0}
 .folder.done{border-left:5px solid var(--ok)}.folder.pend{border-left:5px solid var(--miss)}
 .folder .top{display:flex;gap:10px;align-items:center;margin-bottom:8px}
-.folder h3{margin:0;font-size:16px;line-height:1.2}
-.badge{margin-left:auto;font-size:12px;font-weight:600;padding:2px 9px;border-radius:99px;white-space:nowrap}
+.folder h3{margin:0;font-size:16px;line-height:1.2;font-weight:700}
+.badge{margin-left:auto;font-size:12px;font-weight:600;padding:2px 9px;border-radius:4px;white-space:nowrap}
 .done .badge{background:var(--okbg);color:var(--ok)}.pend .badge{background:var(--missbg);color:var(--miss)}
-.folder .seg{margin:0 0 8px}.folder .seg i{flex:1;height:6px}
-.folder label{display:flex;gap:8px;align-items:flex-start;padding:5px 0;font-size:14px;border-top:1px solid #edf0f2}
-.folder label input{margin-top:3px}
+.folder .seg{margin:0 0 8px}.folder .seg i{flex:1;height:5px}
+.folder label{display:flex;gap:8px;align-items:flex-start;padding:5px 0;font-size:14px;border-top:1px solid #e6ebe9}
+.folder label input{margin-top:3px;accent-color:var(--ok)}
 .folder .arq{display:block;font-size:12px;color:var(--mut);word-break:break-all}
 .folder .tag{margin-left:auto;font-size:12px;color:var(--mut);white-space:nowrap}
 .folder .no{color:var(--miss)}
-
-/* diagnóstico */
-details{font-size:14px}summary{cursor:pointer;color:var(--acc);font-weight:600}
-#diag{margin-top:26px}
+details{font-size:14px}summary{cursor:pointer;color:var(--link);font-weight:600}
+#diag{margin-top:40px;border-top:1px solid var(--line);padding-top:14px}
 #diag .aviso{color:var(--miss);font-weight:600}
 #diag ul{margin:6px 0;padding-left:20px;color:var(--miss);font-size:13px}
-#diag pre{background:#f4f6f8;border:1px solid var(--line);border-radius:6px;padding:10px;max-height:260px;overflow:auto;font-size:12.5px;white-space:pre-wrap}
-:focus-visible{outline:3px solid #7fb0e0;outline-offset:2px}
-@media(max-width:860px){.sum{grid-template-columns:1fr}header,main{padding-left:16px;padding-right:16px}}
-@media print{header button,.tools,#diag{display:none}}
+#diag pre{background:#f1f4f3;border:1px solid var(--line);border-radius:3px;padding:10px;max-height:260px;overflow:auto;font-size:12.5px;white-space:pre-wrap}
+:focus-visible{outline:3px solid var(--acc);outline-offset:2px}
+@media(max-width:900px){body{display:block}header{position:static;height:auto;padding:20px 16px}h1{font-size:26px}header>div:last-child{flex-direction:row;flex-wrap:wrap}header button{width:auto}main{padding:22px 16px 40px}.sum{grid-template-columns:1fr;gap:26px}}
+@media print{body{display:block}header{position:static;height:auto}header button,.tools,#diag{display:none}}
+.lnk{cursor:pointer;color:inherit;text-decoration:underline dotted;text-underline-offset:4px}.lnk:hover{text-decoration:underline;color:var(--link)}
+#dlg{border:0;border-top:6px solid var(--acc);border-radius:4px;padding:22px 26px 26px;width:min(640px,94vw);max-height:88vh;position:fixed;box-shadow:0 24px 70px #0005}#dlg::backdrop{background:#0b1f1c88}
+#dlg h2{margin:0 36px 4px 0;font-size:24px;font-weight:700;letter-spacing:-.01em}#dlg h4{margin:20px 0 6px;font-size:14px;font-weight:700;color:var(--link)}
+#dlg .x{position:absolute;top:10px;right:14px;border:0;background:none;font-size:26px;cursor:pointer;color:#333;padding:0 6px}
+#dlg .g{display:grid;grid-template-columns:150px 1fr;gap:6px 12px;font-size:14px;margin:8px 0 0}#dlg .g dt{color:var(--mut)}#dlg .g dd{margin:0}
+#dlg .pend{margin:6px 0;padding-left:20px}#dlg .pend li{color:var(--miss);font-weight:600}.okp{color:var(--ok);font-weight:600}
+.mini{padding:1px 7px;font-size:12px;margin-left:6px;background:#fff;color:var(--link);border-color:var(--line)}.mini:hover{background:#eef2f0}
+#dlg .vinc{background:#f1f5f3;border-left:4px solid var(--link);padding:10px 12px;margin:10px 0 0}#dlg .vinc p{margin:0 0 8px;font-size:13.5px}#dlg .vinc select{max-width:100%;width:100%;margin-bottom:8px;border:1px solid var(--line);background:#fff;padding:7px;border-radius:3px}#dlg .vinc button{margin-right:6px}
+.pill{font-size:12px;font-weight:700;border-radius:4px;padding:2px 8px;background:var(--okbg);color:var(--ok);white-space:nowrap}.pill.no{background:var(--missbg);color:var(--miss)}.pill.warn{background:#fff0c9;color:#7d5600}
 </style>
 </head>
 <body>
@@ -114,14 +120,15 @@ details{font-size:14px}summary{cursor:pointer;color:var(--acc);font-weight:600}
   <div>
     <button id="btnPasta">Selecionar pasta #ATIVOS</button>
     <button id="btnScan" class="sec" hidden>Atualizar agora</button>
+    <button id="btnPlan" class="sec" hidden>Planilha de contratos</button>
     <button id="btnCsv" class="sec" hidden>Exportar CSV</button>
   </div>
 </header>
 <main>
   <div id="intro" class="msg">
     Clique em <b>Selecionar pasta #ATIVOS</b> e escolha:<br>
-    <code>\\brs-ifs028\ho_002$\br_IND\8. OP\- 5000000 - ADM IF\#Controles\Equipe\Documentos Equipe\#ATIVOS</code><br><br>
-    A escolha fica lembrada neste navegador (use Chrome ou Edge).<br><br><small>Para abrir sozinho ao ligar o PC: aperte Win+R, digite <code>shell:startup</code> e coloque ali um atalho para este arquivo.</small>
+    a pasta <b>#ATIVOS</b> (a que contém uma subpasta por pessoa).<br><br>
+    A escolha fica lembrada neste navegador (use Chrome ou Edge).<br>A planilha de contratos (.xlsx) é achada sozinha se estiver na raiz da pasta; se estiver em outro lugar, use o botão <b>Planilha de contratos</b> (fica lembrada).<br><br><small>Para abrir sozinho ao ligar o PC: aperte Win+R, digite <code>shell:startup</code> e coloque ali um atalho para este arquivo.</small>
   </div>
   <div id="app" hidden>
     <div id="resumo"></div>
@@ -131,6 +138,7 @@ details{font-size:14px}summary{cursor:pointer;color:var(--acc);font-weight:600}
   </div>
   <details id="diag" class="panel" hidden><summary>Diagnóstico da leitura</summary><div id="diagBody"></div></details>
 </main>
+<dialog id="dlg"><div id="dlgBody"></div></dialog>
 <script>
 /* Palavras que o sistema procura no NOME dos arquivos/subpastas (sem acento, minúsculas).
    Se as pessoas nomeiam os arquivos de outro jeito, é aqui que você ajusta. */
@@ -142,18 +150,19 @@ const DOCS=[
  {k:'integ',n:'Código de Integridade',re:/integri/}
 ];
 const JSON_NAME='_checklist_dados.json';
+const NENHUM='__sem_contrato__';   // vínculo manual "esta pessoa não tem contrato na planilha"
 const INTERVALO=5000;       // pausa mínima entre verificações contínuas (ms)
 const LISTAGENS=10;         // listagens de pasta simultâneas (evita erro em pasta de rede)
 const MAX_NIVEL=6;          // quantos níveis de subpasta dentro de cada pessoa
 const PARALELO=8;           // pastas lidas ao mesmo tempo
 const IGN_ARQ=/^(~\$|\.|thumbs\.db$|desktop\.ini$)/i;
-const S={log:[],handle:null,pessoas:{},manual:{},ignorar:'',last:null,ts:null,lastMs:0,dur:0,erros:[],scanning:false,manVer:0,salvando:0,novos:new Map(),aviso:'',hora:'',ultMud:'',timer:null,filtro:'todos',busca:'',diagP:'',docF:'',ordem:'falta',vista:'matriz'};
+const S={plan:[],planH:null,planOk:false,planMs:0,planVer:0,planNome:'(não encontrada na pasta)',cx:null,log:[],handle:null,pessoas:{},manual:{},ignorar:'',last:null,ts:null,lastMs:0,dur:0,erros:[],scanning:false,manVer:0,salvando:0,novos:new Map(),aviso:'',hora:'',ultMud:'',timer:null,filtro:'todos',busca:'',diagP:'',docF:'',ordem:'falta',vista:'matriz'};
 const $=s=>document.querySelector(s);
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const norm=s=>s.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
 const hoje=()=>new Date().toLocaleDateString('sv-SE');
 const cmp=(a,b)=>a.localeCompare(b,'pt-BR');
-const setStatus=t=>{$('#status').textContent=t};
+const setStatus=t=>{$('#status').textContent=String(t).replace(/ · /g,'\n')};
 
 /* ---- guarda a pasta escolhida (IndexedDB) ---- */
 let _db=null;
@@ -171,7 +180,7 @@ const nv=n=>Date.now()-(S.novos.get(n)||0)<5000?'novo':'';
 const setDot=c=>{$('#dot').className='dot '+c};
 function atualizarStatus(){
   if(!S.handle)return;
-  setStatus('Ao vivo · verificado às '+S.hora+(S.obsOk?' · monitorando a pasta':' · verificação contínua')+(S.ultMud?' · última mudança às '+S.ultMud:'')+(S.erros.length?' · '+S.erros.length+' erro(s), veja o diagnóstico':'')+(S.aviso?' · '+S.aviso:''));
+  setStatus('Ao vivo · verificado às '+S.hora+(S.obsOk?' · monitorando a pasta':' · verificação contínua')+(S.ultMud?' · última mudança às '+S.ultMud:'')+(S.erros.length?' · '+S.erros.length+' erro(s), veja o diagnóstico':'')+(S.aviso?' · '+S.aviso:'')+(S.planOk?' · contratos: '+S.planNome:' · planilha de contratos não conectada'));
 }
 let rt=null;const pedirRender=()=>{if(!rt)rt=setTimeout(()=>{rt=null;render()},600)};
 
@@ -243,7 +252,7 @@ async function scan(opt){
         for(const f of b)if(!a.has(f))evs.push([n,'adicionado',f]);
         for(const f of a)if(!b.has(f))evs.push([n,'removido',f])}
       if(evs.length)registrar(evs)}
-    S.pessoas=novo;S.jaLeu=true;const d=new Date();
+    S.pessoas=novo;S.jaLeu=true;lerPlan();const d=new Date();
     S.ts=d.toLocaleString('pt-BR');S.hora=d.toLocaleTimeString('pt-BR');S.last=hoje();S.lastMs=Date.now();S.dur=Date.now()-t0;
     if(mud.length){S.ultMud=S.hora;mud.forEach(n=>S.novos.set(n,Date.now()))}
     if(progressivo||mud.length||mudouManual){
@@ -346,14 +355,14 @@ function celula(n,d){
   return `<label class="c ${chk?'y':'n'}" title="${esc(arqs.join('\n')||d.n)}"><input type="checkbox" data-n="${encodeURIComponent(n)}" data-k="${d.k}" ${chk?'checked':''} aria-label="${esc(d.n)} de ${esc(n)}"><span class="ico">${chk?'✓':'✕'}</span><em>${sub}</em></label>`;
 }
 function matriz(lista){
-  return `<div class="mx"><table><thead><tr><th>Pessoa</th>${DOCS.map(d=>`<th>${esc(d.n)}</th>`).join('')}<th style="text-align:left">Situação</th></tr></thead><tbody>${lista.map(n=>{
+  return `<div class="mx"><table><thead><tr><th>Pessoa</th>${DOCS.map(d=>`<th>${esc(d.n)}</th>`).join('')}<th>Contrato</th><th style="text-align:left">Situação</th></tr></thead><tbody>${lista.map(n=>{
    const st=situacao(n);
-   return `<tr class="${nv(n)}"><td><div class="who"><span class="av">${esc(ini(n))}</span><div><b>${esc(n)}</b>${seg(n)}</div></div></td>${DOCS.map(d=>`<td>${celula(n,d)}</td>`).join('')}<td class="st ${st.completo?'ok':'no'}">${st.completo?'Tudo certo':'Faltam '+st.faltam.length+': '+esc(st.faltam.join(', '))}</td></tr>`}).join('')}</tbody></table></div>`;
+   return `<tr class="${nv(n)}"><td><div class="who"><span class="av">${esc(ini(n))}</span><div><b class="lnk" role="button" tabindex="0" data-p="${encodeURIComponent(n)}">${esc(n)}</b>${chip(n)}${seg(n)}</div></div></td>${DOCS.map(d=>`<td>${celula(n,d)}</td>`).join('')}<td>${pillC(n)}${manV(n)}<button class="mini" data-p="${encodeURIComponent(n)}" data-foco="1" title="Vincular ou alterar o contrato desta pessoa na planilha">Vincular</button></td><td class="st ${st.completo?'ok':'no'}">${st.completo?'Tudo certo':'Faltam '+st.faltam.length+': '+esc(st.faltam.join(', '))}</td></tr>`}).join('')}</tbody></table></div>`;
 }
 function cartoes(lista){
   return '<div class="grid">'+lista.map(n=>{
     const st=situacao(n),ok=DOCS.length-st.faltam.length;
-    return `<section class="folder ${st.completo?'done':'pend'} ${nv(n)}"><div class="top"><span class="av">${esc(ini(n))}</span><h3>${esc(n)}</h3><span class="badge">${st.completo?'Completo':ok+' de '+DOCS.length}</span></div>${seg(n)}
+    return `<section class="folder ${st.completo?'done':'pend'} ${nv(n)}"><div class="top"><span class="av">${esc(ini(n))}</span><h3 class="lnk" role="button" tabindex="0" data-p="${encodeURIComponent(n)}">${esc(n)}</h3>${chip(n)}<span class="badge">${st.completo?'Completo':ok+' de '+DOCS.length}</span></div>${seg(n)}${S.plan.length?`<p style="margin:0 0 6px;font-size:12.5px;color:var(--mut)">Contrato: ${(()=>{const c=casar().mapa[n];return c?esc(c.nome)+manV(n):'sem vínculo'})()} <button class="mini" data-p="${encodeURIComponent(n)}" data-foco="1">Vincular</button></p>`:''}
      ${DOCS.map(d=>{
        const arqs=S.pessoas[n].docs[d.k],a=arqs.length>0,chk=tem(n,d.k);
        const tag=a?(chk?'':'ignorado'):(chk?'marcado à mão':'falta');
@@ -363,17 +372,17 @@ function cartoes(lista){
   }).join('')+'</div>';
 }
 function render(){
-  $('#intro').hidden=true;$('#app').hidden=false;$('#btnScan').hidden=false;$('#btnCsv').hidden=false;
+  $('#intro').hidden=true;$('#app').hidden=false;$('#btnScan').hidden=false;$('#btnCsv').hidden=false;$('#btnPlan').hidden=false;
   const todos=Object.keys(S.pessoas).sort(cmp);
   $('#resumo').innerHTML=todos.length?resumo(todos):'';
   const F=(k,t)=>`<button class="${S.filtro===k?'on':''}" data-f="${k}">${t}</button>`;
   const V=(k,t)=>`<button class="${S.vista===k?'on':''}" data-v="${k}">${t}</button>`;
   const nP=todos.filter(n=>!situacao(n).completo).length;document.title=(todos.length?'('+nP+' pendentes) ':'')+'Checklist de Documentos – Ativos';
-  $('#filtros').innerHTML=F('todos','Todos ('+todos.length+')')+F('pend','Pendentes ('+nP+')')+F('ok','Completos ('+(todos.length-nP)+')')+'<span class="sep"></span>'+
+  $('#filtros').innerHTML=F('todos','Todos ('+todos.length+')')+F('pend','Pendentes ('+nP+')')+F('ok','Completos ('+(todos.length-nP)+')')+(S.plan.length?F('contr','Contrato com alerta ('+todos.filter(alerta).length+')'):'')+'<span class="sep"></span>'+
    `<label>Ordenar: <select id="ordem"><option value="falta" ${S.ordem==='falta'?'selected':''}>Mais pendências primeiro</option><option value="nome" ${S.ordem==='nome'?'selected':''}>Nome (A–Z)</option></select></label><span class="sep"></span>`+V('matriz','Matriz')+V('cartoes','Pastas');
   if(!todos.length){$('#info').textContent='';$('#grid').innerHTML='<div class="msg">Nenhuma subpasta de pessoa encontrada nesta pasta. Confira se você escolheu a pasta #ATIVOS (a que contém uma subpasta por pessoa).</div>';renderDiag();return}
   let lista=todos.filter(n=>norm(n).includes(norm(S.busca)));
-  if(S.filtro!=='todos')lista=lista.filter(n=>(S.filtro==='ok')===situacao(n).completo);
+  if(S.filtro==='contr')lista=lista.filter(alerta);else if(S.filtro!=='todos')lista=lista.filter(n=>(S.filtro==='ok')===situacao(n).completo);
   if(S.docF)lista=lista.filter(n=>!tem(n,S.docF));
   if(S.ordem==='falta')lista.sort((a,b)=>situacao(b).faltam.length-situacao(a).faltam.length||cmp(a,b));
   const dn=DOCS.find(d=>d.k===S.docF);
@@ -394,7 +403,7 @@ function renderDiag(){
    (semAch.length?`<p class="aviso">Ninguém teve detectado automaticamente: ${semAch.map(x=>esc(x.n)).join(', ')}. Provavelmente os arquivos têm nomes diferentes dos que o sistema procura. Veja os nomes reais abaixo e ajuste as palavras da lista DOCS no início do código.</p>`:'')+
    (S.erros.length?`<p class="aviso">${S.erros.length} erro(s) durante a leitura:</p><ul>${S.erros.slice(0,20).map(e=>`<li>${esc(e)}</li>`).join('')}</ul>`:'')+
    `<p><label>Ignorar subpastas (nomes separados por vírgula): <input id="ign" value="${esc(S.ignorar)}"></label> <button id="btnIgn">Aplicar e reler</button></p>`+
-   `<p><label>Ver arquivos de: <select id="diagPessoa">${nomes.map(n=>`<option ${n===S.diagP?'selected':''}>${esc(n)}</option>`).join('')}</select></label></p><pre id="diagFiles"></pre><p><b>Atividade recente</b></p><pre>${esc(S.log.map(e=>e.ts+' · '+e.p+' · '+e.t+(e.c?' · '+e.c:'')).join('\n')||'(nenhuma mudança registrada ainda)')}</pre>`;
+   `<p><label>Ver arquivos de: <select id="diagPessoa">${nomes.map(n=>`<option ${n===S.diagP?'selected':''}>${esc(n)}</option>`).join('')}</select></label></p><pre id="diagFiles"></pre>${(()=>{const x=casar();return `<p><b>Planilha:</b> ${esc(S.planNome)} · ${S.plan.length} contratos · ${Object.keys(x.mapa).length} ligados a pastas.${S.plan.length&&x.semPlan.length?'<br>Pastas sem correspondência: '+esc(x.semPlan.join('; ')):''}${x.semPasta.length&&Object.keys(S.pessoas).length?'<br>Na planilha, sem pasta: '+esc(x.semPasta.map(q=>q.nome).join('; ')):''}</p>`})()}<p><b>Atividade recente</b></p><pre>${esc(S.log.map(e=>e.ts+' · '+e.p+' · '+e.t+(e.c?' · '+e.c:'')).join('\n')||'(nenhuma mudança registrada ainda)')}</pre>`;
   mostrarArquivos();
 }
 function mostrarArquivos(){
@@ -405,16 +414,125 @@ function mostrarArquivos(){
 /* ---- exportar ---- */
 function csv(){
   const q=v=>'"'+String(v).replace(/"/g,'""')+'"';
-  const linhas=[['Pessoa',...DOCS.map(d=>d.n),'Situação'].map(q).join(';')];
+  const linhas=[['Pessoa',...DOCS.map(d=>d.n),'Situação','Contrato','Renovação'].map(q).join(';')];
   Object.keys(S.pessoas).sort(cmp).forEach(n=>{
-    const st=situacao(n);
-    linhas.push([n,...DOCS.map(d=>tem(n,d.k)?'Sim':'Não'),st.completo?'Completo':'Falta: '+st.faltam.join(', ')].map(q).join(';'));
+    const st=situacao(n),cc=casar().mapa[n],dd=cc?dias(cc):null;
+    linhas.push([n,...DOCS.map(d=>tem(n,d.k)?'Sim':'Não'),st.completo?'Completo':'Falta: '+st.faltam.join(', '),cc?(/vencid/i.test(cc.status)||dd!==null&&dd<0?'Vencido':dd!==null&&dd<=90?'Vence em '+dd+'d':'Vigente'):'Sem vínculo',cc?D_(cc.ren):''].map(q).join(';'));
   });
   const a=document.createElement('a');
   a.href=URL.createObjectURL(new Blob(['\ufeff'+linhas.join('\r\n')],{type:'text/csv;charset=utf-8'}));
   a.download='checklist-ativos-'+hoje()+'.csv';a.click();
   setTimeout(()=>URL.revokeObjectURL(a.href),2000);
 }
+
+/* ---- planilha de contratos (lida no navegador; nada é enviado a servidor) ---- */
+const nrm=s=>String(s??'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
+const tok=s=>nrm(s).replace(/[^a-z0-9 ]/g,' ').split(/\s+/).filter(w=>w&&!['de','da','do','das','dos','e'].includes(w));
+function parsePlan(wb){
+  let R,hi=-1;const isN=h=>/^(inspetor|prestador|contratad)/.test(nrm(h).trim());
+  for(const sn of wb.SheetNames){R=XLSX.utils.sheet_to_json(wb.Sheets[sn],{header:1,raw:true,defval:null});
+    hi=R.findIndex(r=>r&&r.some(isN)&&r.some(h=>/renov|vencim|cnpj|razao|status/.test(nrm(h))));if(hi>=0)break}
+  if(hi<0)return[];
+  const H=R[hi].map(h=>nrm(h).trim()),col=k=>H.findIndex(h=>h.startsWith(k)),nc=R[hi].findIndex(isN);
+  const K={nome:nc,razao:col('razao'),cnpj:col('cnpj'),adm:col('data adm'),ren:col('renov')>=0?col('renov'):col('vencim'),status:col('status'),prazo:col('prazo'),prop:col('proposta'),teams:col('fluxo'),jur:col('juridico'),hh:col('valor hh'),hi:col('valor hi'),he:col('valor he'),alm:col('almoc'),jan:col('jantar'),km:col('km'),cad:col('cadastros'),part:col('particul')};
+  const dmy=t=>{const m=t.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);return m?m[3]+'-'+m[2].padStart(2,'0')+'-'+m[1].padStart(2,'0'):t};
+  const v=x=>{if(x instanceof Date&&!isNaN(x)){const d=new Date(x.getTime()+432e5);return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')}return typeof x==='number'?x:dmy(String(x??'').replace(/\s+/g,' ').trim())};
+  return R.slice(hi+1).filter(r=>r&&String(r[nc]??'').trim()).map(r=>Object.fromEntries(Object.entries(K).map(([k,i])=>[k,i<0?'':v(r[i])])));
+}
+function casar(){   // liga cada pasta a uma linha da planilha pelo nome
+  const nomes=Object.keys(S.pessoas),sig=S.planVer+'|'+nomes.join('|')+JSON.stringify(S.manual.__vinc||{});
+  if(S.cx?.sig===sig)return S.cx;
+  const T=S.plan.map(p=>tok(p.nome)),usados=new Set(),mapa={},exato=new Map();
+  const claim=(n,j)=>{usados.add(j);mapa[n]=S.plan[j]};
+  const VM=S.manual.__vinc||{},SEM=new Set(nomes.filter(n=>VM[n]===NENHUM));
+  for(const n of nomes){if(SEM.has(n)||!VM[n])continue;const j=S.plan.findIndex(p=>p.nome===VM[n]);if(j>=0&&!usados.has(j))claim(n,j)}
+  T.forEach((t,j)=>{const k=t.join(' ');if(!exato.has(k))exato.set(k,j)});
+  for(const n of nomes){if(SEM.has(n))continue;const j=exato.get(tok(n).join(' '));if(!mapa[n]&&j!==undefined&&!usados.has(j))claim(n,j)}
+  for(const n of nomes){if(mapa[n]||SEM.has(n))continue;const A=new Set(tok(n));let best=-1,sc=0,emp=false;
+    T.forEach((s,j)=>{if(usados.has(j))return;const B=new Set(s),i=[...A].filter(w=>B.has(w)).length,m=Math.min(A.size,B.size),
+      c=m>=2&&i===m?0.9:i/new Set([...A,...B]).size;
+      if(c>sc){sc=c;best=j;emp=false}else if(c===sc&&c>0)emp=true});
+    if(sc>=0.6&&!emp)claim(n,best)}
+  return S.cx={sig,mapa,semPlan:nomes.filter(n=>!mapa[n]),semPasta:S.plan.filter((_,j)=>!usados.has(j))};
+}
+async function acharPlan(){
+  if(S.planH){try{if(await S.planH.queryPermission({mode:'read'})==='granted')return{f:await S.planH.getFile(),sc:2}}catch(e){}}   // procura o .xlsx na raiz da pasta #ATIVOS (prefere nome com "validade" ou "contrat")
+  let best=null;
+  for await(const fh of S.handle.values()){
+    if(fh.kind!=='file'||!/\.xls[xm]$/i.test(fh.name)||fh.name.startsWith('~$'))continue;
+    const f=await fh.getFile(),sc=/validade|contrat/i.test(fh.name)?1:0;
+    if(!best||sc>best.sc||sc===best.sc&&f.lastModified>best.f.lastModified)best={f,sc};
+  }
+  return best;
+}
+async function lerPlan(){
+  if(!S.handle||S.lendoPlan)return;
+  S.lendoPlan=true;
+  try{
+    if(await S.handle.queryPermission({mode:'read'})!=='granted')return;
+    const b=await acharPlan();
+    if(!b){if(S.plan.length){S.plan=[];S.planOk=false;S.planNome='(não encontrada na pasta)';S.planVer++;if(!$('#app').hidden)render()}return}
+    const f=b.f;if(S.planOk&&f.lastModified===S.planMs&&f.name===S.planNome)return;
+    const lin=parsePlan(XLSX.read(await f.arrayBuffer(),{type:'array',cellDates:true}));
+    if(!lin.length)throw new Error('não achei a coluna INSPETOR em '+f.name);
+    S.plan=lin;S.planMs=f.lastModified;S.planNome=f.name;S.planOk=true;S.planVer++;kv('set','plan',{plan:lin,nome:f.name}).catch(()=>{});atualizarStatus();
+    if(!$('#app').hidden)render();
+  }catch(e){setStatus('Planilha: '+e.message)}finally{S.lendoPlan=false}
+}
+const dias=c=>{const d=c.ren?Math.round((new Date(c.ren+'T12:00')-new Date())/864e5):NaN;return isNaN(d)?null:d};
+const chip=n=>{const c=casar().mapa[n];if(!c)return'';const d=dias(c);
+  return /vencid/i.test(c.status)||d!==null&&d<0?' <span class="pill no">Contrato vencido</span>':d!==null&&d<=90?' <span class="pill warn">Vence em '+d+'d</span>':''};
+const alerta=n=>{const c=casar().mapa[n];if(!c)return false;const d=dias(c);return /vencid/i.test(c.status)||d!==null&&d<=90};
+const pillC=n=>{if(!S.plan.length)return'<small>—</small>';const c=casar().mapa[n];if(!c)return'<span class="pill warn">Sem vínculo</span>';const d=dias(c);
+  return /vencid/i.test(c.status)||d!==null&&d<0?'<span class="pill no">Vencido'+(d!==null?' há '+(-d)+'d':'')+'</span>':d!==null&&d<=90?'<span class="pill warn">Vence em '+d+'d</span>':'<span class="pill">Vigente</span>'};
+const manV=n=>S.plan.length&&S.manual.__vinc?.[n]?' <small title="Vínculo definido à mão">(manual)</small>':'';
+const T_=s=>s===''||s==null?'—':esc(s);
+const M_=v=>v===''||v==null||v===0||v==='-'?'—':typeof v==='number'?'R$ '+v.toLocaleString('pt-BR',{minimumFractionDigits:2}):esc(v);
+const D_=s=>/^\d{4}-\d\d-\d\d$/.test(s)?s.split('-').reverse().join('/'):s;
+function blocoVinc(n,c){
+  const VM=S.manual.__vinc||{},mapa=casar().mapa,dono={};
+  for(const p in mapa)dono[mapa[p].nome]=p;
+  const man=VM[n],sem=man===NENHUM;
+  const estado=sem?'Marcado à mão como <b>sem contrato</b> na planilha.':man&&c?'Vínculo <b>manual</b> com <b>'+esc(c.nome)+'</b>.':c?'Vínculo <b>automático</b> com <b>'+esc(c.nome)+'</b>. Confira se é a pessoa certa.':'Sem correspondência automática na planilha.';
+  const nomes=[...new Set(S.plan.map(q=>q.nome))].sort(cmp);
+  const sel=sem?NENHUM:man&&c?c.nome:'';
+  const ops=`<option value="" ${sel===''?'selected':''}>Automático (pelo nome)</option><option value="${NENHUM}" ${sel===NENHUM?'selected':''}>Sem contrato na planilha</option>`+
+    nomes.map(q=>{const o=dono[q];return `<option value="${esc(q)}" ${sel===q?'selected':''}>${esc(q)}${o&&o!==n?' — em uso por '+esc(o):''}</option>`}).join('');
+  return `<div class="vinc"><p>${estado}</p><select id="vincSel" aria-label="Contrato na planilha">${ops}</select><button data-vinc="${encodeURIComponent(n)}">Salvar vínculo</button><small>Se escolher um contrato em uso por outra pessoa, ele passa para esta e a outra é revinculada.</small></div>`;
+}
+function abrirPessoa(n,foco){
+  const p=S.pessoas[n];if(!p)return;
+  const st=situacao(n),c=casar().mapa[n],ent=DOCS.filter(d=>tem(n,d.k));
+  let h=`<button class="x" data-x aria-label="Fechar">×</button><h2>${esc(n)}</h2><h4>Documentos pendentes (pasta)</h4>`+
+    (st.completo?'<p class="okp">Nenhum: todos os documentos foram entregues.</p>':`<ul class="pend">${st.faltam.map(f=>`<li>${esc(f)}</li>`).join('')}</ul>`);
+  if(ent.length)h+=`<details><summary>Entregues (${ent.length})</summary><ul>${ent.map(d=>`<li>${esc(d.n)}${p.docs[d.k].length?' <small>— '+esc(p.docs[d.k].join(', '))+'</small>':' <small>(marcado à mão)</small>'}</li>`).join('')}</ul></details>`;
+  h+='<h4>Contrato (planilha)</h4>';
+  if(!S.plan.length)h+='<p>Planilha de contratos não encontrada. Use o botão "Planilha de contratos" no topo ou coloque o .xlsx na raiz da pasta #ATIVOS.</p>';
+  else h+=blocoVinc(n,c);
+  if(!c){}
+  else{
+    const d=dias(c),pc=[];
+    if(/vencid/i.test(c.status)||d!==null&&d<0)pc.push('Contrato vencido: renovar');
+    if(!c.teams)pc.push('Fluxo Teams não finalizado');
+    if(!c.jur)pc.push('Sem assinatura do jurídico');
+    if(/incompleto|process/i.test(c.cad))pc.push('Cadastros: '+c.cad);
+    if(pc.length)h+=`<ul class="pend">${pc.map(x=>`<li>${esc(x)}</li>`).join('')}</ul>`;
+    const venc=d===null?'':d<0?` <span class="pill no">vencido há ${-d} dias</span>`:d<=90?` <span class="pill warn">vence em ${d} dias</span>`:` <small>(em ${d} dias)</small>`;
+    const g=[['Razão social',T_(c.razao)],['CNPJ',T_(c.cnpj)],['Admissão',T_(D_(c.adm))],['Renovação',T_(D_(c.ren))+venc],['Status',T_(c.status)],['Prazo',T_(c.prazo)],['Proposta',T_(D_(c.prop))],['Fluxo Teams',T_(c.teams)],['Jurídico',T_(c.jur)],['Cadastros',T_(c.cad)],['Valor HH',M_(c.hh)],['Valor HI',M_(c.hi)],['Valor HE',M_(c.he)],['Almoço',M_(c.alm)],['Jantar',M_(c.jan)],['KM (R$/km)',M_(c.km)],['Particularidades',T_(c.part)]];
+    h+=`<dl class="g">${g.map(([a,b])=>`<dt>${a}</dt><dd>${b}</dd>`).join('')}</dl>`;
+  }
+  $('#dlgBody').innerHTML=h;if(!$('#dlg').open)$('#dlg').showModal();if(foco)$('#vincSel')?.focus();
+}
+document.addEventListener('click',e=>{
+  const vb=e.target.closest?.('[data-vinc]');if(vb){const n=decodeURIComponent(vb.dataset.vinc),v=$('#vincSel').value,V=(S.manual.__vinc??={});
+    if(v)V[n]=v;else delete V[n];
+    if(!Object.keys(V).length)delete S.manual.__vinc;
+    S.manVer++;S.cx=null;render();salvar();guardarCache();abrirPessoa(n);return}
+  const l=e.target.closest?.('[data-p]');if(l){abrirPessoa(decodeURIComponent(l.dataset.p),l.dataset.foco==='1');return}
+  if(e.target.closest?.('[data-x]')||e.target.id==='dlg')$('#dlg').close();
+});
+document.addEventListener('keydown',e=>{const l=e.target.closest?.('[data-p]');if(l&&(e.key==='Enter'||e.key===' ')){e.preventDefault();abrirPessoa(decodeURIComponent(l.dataset.p),l.dataset.foco==='1')}});
+setInterval(()=>lerPlan(),5000);   // confere a cada 10 s se a planilha da pasta mudou
 
 /* ---- eventos ---- */
 $('#busca').addEventListener('input',e=>{S.busca=e.target.value;render()});
@@ -441,7 +559,11 @@ document.addEventListener('change',async e=>{
   S.manVer++;render();await salvar();await guardarCache();
 });
 document.addEventListener('click',()=>{try{if('Notification' in window&&Notification.permission==='default')Notification.requestPermission()}catch(e){}},{once:true});
-$('#btnScan').onclick=()=>S.handle?scan():(S.reconectar?S.reconectar():escolher());
+$('#btnScan').onclick=async()=>{try{if(S.planH)await S.planH.requestPermission({mode:'read'})}catch(e){}S.handle?scan():(S.reconectar?S.reconectar():escolher())};
+$('#btnPlan').onclick=async()=>{try{
+  const [h]=await showOpenFilePicker({id:'planilha',types:[{description:'Planilha Excel',accept:{'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet':['.xlsx'],'application/vnd.ms-excel.sheet.macroEnabled.12':['.xlsm']}}]});
+  S.planH=h;await kv('set','planH',h);S.planOk=false;await lerPlan();
+}catch(e){if(e.name!=='AbortError')setStatus('Planilha: '+(e.message||e.name))}};
 $('#btnCsv').onclick=csv;
 
 /* ---- conexão e rotina automática ---- */
@@ -467,7 +589,7 @@ window.addEventListener('unhandledrejection',e=>setStatus('Erro inesperado: '+((
 async function escolher(){
   try{
     const h=await showDirectoryPicker({id:'ativos',mode:'readwrite'});
-    S.pessoas={};S.manual={};S.ignorar='';S.novos.clear();await kv('set','cache',null);
+    S.pessoas={};S.manual={};S.ignorar='';S.novos.clear();S.jaLeu=false;await kv('set','cache',null);
     $('#app').hidden=true;$('#intro').hidden=false;$('#intro').innerHTML='<b>Lendo a pasta pela primeira vez…</b>';
     await conectar(h);
   }catch(e){if(e.name!=='AbortError')erroPasta(e)}
@@ -483,6 +605,7 @@ async function escolher(){
   if(!h)return;
   try{c=await kv('get','cache')}catch(e){c=null}
   try{S.log=(await kv('get','log'))||[]}catch(e){S.log=[]}
+  try{S.planH=(await kv('get','planH'))||null;const pc=await kv('get','plan');if(pc?.plan?.length){S.plan=pc.plan;S.planNome=pc.nome+' (salva)';S.planVer++}}catch(e){}
   try{navigator.storage?.persist?.()}catch(e){}
   if(c&&c.v===1&&c.pessoas)try{   // mostra o último resultado imediatamente, sem esperar a pasta
     S.pessoas=Object.fromEntries(Object.entries(c.pessoas).map(([n,f])=>[n,montar(f)]));

@@ -139,6 +139,37 @@ details{font-size:14px}summary{cursor:pointer;color:var(--link);font-weight:600}
 .rg{font-size:11px;font-weight:700;padding:1px 6px;border-radius:3px;background:#dcebe7;color:var(--link);margin-left:6px;vertical-align:middle}
 .rg.clt{background:#e8e3f3;color:#5a3f8f}
 .rotulo{font-size:12.5px;color:var(--mut)}
+/* ===== reorganização: filtros, contrato em destaque, documentos opcionais ===== */
+.ctrs{background:var(--card);border:1px solid var(--line);border-top:5px solid var(--acc);padding:20px 22px 24px;margin-bottom:24px}
+.ctop h2{font-size:24px}.kpi b{font-size:48px}.kpi{padding:15px 18px}
+.tools{display:flex;flex-wrap:wrap;gap:14px 26px;align-items:flex-end;background:var(--card);border:1px solid var(--line);padding:14px 18px;margin-bottom:6px}
+#filtros{display:contents}
+.fg{display:flex;flex-direction:column;gap:4px}.fg .rotulo{font-size:12px;font-weight:600}
+.tools input[type=search]{border:1px solid var(--line);background:#fff;padding:7px 10px;border-radius:4px;min-width:220px}
+.tools select{border:1px solid var(--line);background:#fff;padding:7px 8px;border-radius:4px}
+.segc{display:flex;border:1px solid var(--line);border-radius:4px;overflow:hidden;background:#fff}
+.tools .segc button{background:#fff;color:var(--mut);border:0;border-right:1px solid var(--line);border-radius:0;padding:7px 12px;font-size:13.5px}
+.tools .segc button:last-child{border-right:0}
+.tools .segc button:hover{background:#eef2f0;color:var(--ink)}
+.tools .segc button.on,.tools .segc button.on:hover{background:var(--deep);color:#fff;font-weight:600}
+.tools button.tgl{margin-left:auto;display:flex;align-items:center;gap:9px;background:#fff;color:var(--ink);border:1px solid var(--line);border-radius:999px;padding:7px 15px 7px 9px;font-weight:600}
+.sw{width:30px;height:17px;border-radius:9px;background:#b5c0bc;position:relative;transition:background .15s}
+.sw::after{content:"";position:absolute;top:2px;left:2px;width:13px;height:13px;border-radius:50%;background:#fff;transition:transform .15s}
+.tools button.tgl.on .sw{background:var(--ok)}.tools button.tgl.on .sw::after{transform:translateX(13px)}
+.info{display:flex;flex-wrap:wrap;gap:6px 8px;align-items:center;margin:14px 0 10px}
+.grp th{font-size:12.5px;padding:6px 8px;border-bottom:0}.grp th:first-child{background:var(--card)}
+.grp th.gc{background:var(--acc);color:#2b2000}.grp th.gd{background:var(--tab)}
+th.gc{background:#fbf1d2}td.gc{background:#fdf8e8}tbody tr:hover td.gc{background:#f7edc9}
+td.gc .pill{font-size:13px;padding:3px 10px}
+.ren b{display:block;font:700 15px "Bricolage Grotesque",sans-serif}.ren small{color:var(--mut);font-size:12px}
+tr.c-venc td:first-child{box-shadow:inset 5px 0 0 var(--miss)}tr.c-perto td:first-child{box-shadow:inset 5px 0 0 var(--acc)}tr.c-ok td:first-child{box-shadow:inset 5px 0 0 var(--ok)}
+.ct{margin:2px 0 10px;padding:10px 12px;background:#fdf8e8;border-left:5px solid #8a9894}
+.ct.ok{border-left-color:var(--ok)}.ct.perto{border-left-color:var(--acc)}.ct.venc{border-left-color:var(--miss);background:#fbebe5}
+.ctl{display:flex;align-items:center;gap:8px}.ctl .mini{margin-left:auto}
+.ctd{display:flex;align-items:baseline;gap:10px;margin:4px 0 2px}.ctd b{font:700 22px "Bricolage Grotesque",sans-serif}.ctd span{font-size:13px;color:var(--mut)}
+.ct small{color:var(--mut);font-size:12.5px}
+.folder.k-ok{border-left:5px solid var(--ok)}.folder.k-perto{border-left:5px solid var(--acc)}.folder.k-venc{border-left:5px solid var(--miss)}.folder.k-sem{border-left:5px solid #8a9894}
+@media(max-width:900px){.tools button.tgl{margin-left:0}}
 </style>
 </head>
 <body>
@@ -159,7 +190,7 @@ details{font-size:14px}summary{cursor:pointer;color:var(--link);font-weight:600}
   </div>
   <div id="app" hidden>
     <div id="resumo"></div>
-    <div class="tools"><input type="search" id="busca" placeholder="Buscar pessoa" aria-label="Buscar pessoa"><span id="filtros"></span></div>
+    <div class="tools"><div class="fg"><span class="rotulo">Buscar</span><input type="search" id="busca" placeholder="Nome da pessoa" aria-label="Buscar pessoa"></div><span id="filtros"></span></div>
     <p class="info" id="info"></p>
     <div id="grid"></div>
   </div>
@@ -183,8 +214,9 @@ const LISTAGENS=10;         // listagens de pasta simultâneas (evita erro em pa
 const MAX_NIVEL=6;          // quantos níveis de subpasta dentro de cada pessoa
 const PARALELO=8;           // pastas lidas ao mesmo tempo
 const IGN_ARQ=/^(~\$|\.|thumbs\.db$|desktop\.ini$)/i;
-const S={plan:[],planH:null,planOk:false,planMs:0,planVer:0,planNome:'(não encontrada na pasta)',cx:null,log:[],handle:null,pessoas:{},manual:{},ignorar:'',last:null,ts:null,lastMs:0,dur:0,erros:[],scanning:false,manVer:0,salvando:0,novos:new Map(),aviso:'',hora:'',ultMud:'',timer:null,filtro:'todos',busca:'',diagP:'',docF:'',ordem:'falta',vista:'matriz',reg:'',cs:'',lim:90};
+const S={plan:[],planH:null,planOk:false,planMs:0,planVer:0,planNome:'(não encontrada na pasta)',cx:null,log:[],handle:null,pessoas:{},manual:{},ignorar:'',last:null,ts:null,lastMs:0,dur:0,erros:[],scanning:false,manVer:0,salvando:0,novos:new Map(),aviso:'',hora:'',ultMud:'',timer:null,filtro:'todos',busca:'',diagP:'',docF:'',ordem:'falta',vista:'matriz',reg:'',cs:'',lim:90,docs:true};
 try{const _l=+localStorage.getItem('lim');if([30,60,90].includes(_l))S.lim=_l}catch(e){}
+try{if(localStorage.getItem('docs')==='0')S.docs=false}catch(e){}
 const $=s=>document.querySelector(s);
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const norm=s=>s.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
@@ -370,22 +402,7 @@ function painelContratos(nomes){
 }
 /* ---- resumo no topo ---- */
 function resumo(nomes){
-  const tot=nomes.length,comp=nomes.filter(n=>situacao(n).completo).length;
-  const slots=tot*DOCS.length,tem_=nomes.reduce((s,n)=>s+DOCS.filter(d=>tem(n,d.k)).length,0);
-  const pct=slots?Math.round(tem_/slots*100):0,C=2*Math.PI*52;
-  return painelContratos(nomes)+`<div class="sum">
-   <div class="panel hero">
-    <svg width="130" height="130" viewBox="0 0 130 130" role="img" aria-label="${pct}% dos documentos entregues">
-     <circle cx="65" cy="65" r="52" fill="none" stroke="var(--missbg)" stroke-width="16"/>
-     <circle cx="65" cy="65" r="52" fill="none" stroke="var(--ok)" stroke-width="16" stroke-linecap="round" stroke-dasharray="${C*pct/100} ${C}" transform="rotate(-90 65 65)"/>
-     <text x="65" y="73" text-anchor="middle" font-size="26" font-weight="700" fill="currentColor">${pct}%</text></svg>
-    <div><h2>Documentos entregues</h2><p>${tem_} de ${slots} documentos esperados</p>
-     <div class="stats"><div><b>${tot}</b><span>pessoas</span></div><div class="g"><b>${comp}</b><span>com tudo</span></div><div class="r"><b>${tot-comp}</b><span>com pendência</span></div><div class="r"><b>${slots-tem_}</b><span>documentos faltando</span></div></div></div>
-   </div>
-   <div class="panel cov"><h2>Cobertura por documento</h2>
-    <div class="list">${DOCS.map(d=>{const f=nomes.filter(n=>!tem(n,d.k)).length,p=tot?Math.round((tot-f)/tot*100):0;
-     return `<button class="tile ${S.docF===d.k?'on':''}" data-d="${d.k}" aria-pressed="${S.docF===d.k}"><strong>${esc(d.n)}</strong><span class="n"><span>${tot-f} de ${tot} (${p}%)</span><b>${f?'faltam '+f:'completo'}</b></span><div class="trk"><i style="width:${p}%"></i></div></button>`}).join('')}</div>
-    <p class="hint">Clique em um documento para ver só quem ainda não entregou.</p></div></div>`;
+  return painelContratos(nomes);
 }
 
 /* ---- tela ---- */
@@ -395,20 +412,23 @@ function celula(n,d){
   return `<label class="c ${chk?'y':'n'}" title="${esc(arqs.join('\n')||d.n)}"><input type="checkbox" data-n="${encodeURIComponent(n)}" data-k="${d.k}" ${chk?'checked':''} aria-label="${esc(d.n)} de ${esc(n)}"><span class="ico">${chk?'✓':'✕'}</span><em>${sub}</em></label>`;
 }
 function matriz(lista){
-  return `<div class="mx"><table><thead><tr><th>Pessoa</th>${DOCS.map(d=>`<th>${esc(d.n)}</th>`).join('')}<th>Contrato</th><th style="text-align:left">Situação</th></tr></thead><tbody>${lista.map(n=>{
-   const st=situacao(n);
-   return `<tr class="${nv(n)}"><td><div class="who"><span class="av">${esc(ini(n))}</span><div><b class="lnk" role="button" tabindex="0" data-p="${encodeURIComponent(n)}">${esc(n)}</b>${chip(n)}${seg(n)}</div></div></td>${DOCS.map(d=>`<td>${celula(n,d)}</td>`).join('')}<td>${pillC(n)}${manV(n)}<button class="mini" data-p="${encodeURIComponent(n)}" data-foco="1" title="Vincular ou alterar o contrato desta pessoa na planilha">Vincular</button></td><td class="st ${st.completo?'ok':'no'}">${st.completo?'Tudo certo':'Faltam '+st.faltam.length+': '+esc(st.faltam.join(', '))}</td></tr>`}).join('')}</tbody></table></div>`;
+  const dv=S.docs;
+  return `<div class="mx"><table><thead><tr class="grp"><th></th><th class="gc" colspan="3">Contrato</th>${dv?`<th class="gd" colspan="${DOCS.length+1}">Documentos</th>`:''}</tr><tr><th>Pessoa</th><th class="gc">Situação</th><th class="gc">Renovação</th><th class="gc">Status na planilha</th>${dv?DOCS.map(d=>`<th class="gd">${esc(d.n)}</th>`).join('')+'<th class="gd" style="text-align:left">Pendências</th>':''}</tr></thead><tbody>${lista.map(n=>{
+   const st=situacao(n),x=sitC(n),c=x.c;
+   return `<tr class="${nv(n)} c-${x.k}"><td><div class="who"><span class="av">${esc(ini(n))}</span><div><b class="lnk" role="button" tabindex="0" data-p="${encodeURIComponent(n)}">${esc(n)}</b>${rgTag(n)}${dv?seg(n):''}</div></div></td><td class="gc">${pillC(n)}${manV(n)}<button class="mini" data-p="${encodeURIComponent(n)}" data-foco="1" title="Vincular ou alterar o contrato desta pessoa na planilha">Vincular</button></td><td class="gc ren">${c&&c.ren?`<b>${D_(c.ren)}</b>`:'—'}${x.d!==null?`<small>${cap(txtD(x.d))}</small>`:''}</td><td class="gc">${c?T_(c.status):'—'}</td>${dv?DOCS.map(d=>`<td>${celula(n,d)}</td>`).join('')+`<td class="st ${st.completo?'ok':'no'}">${st.completo?'Tudo certo':'Faltam '+st.faltam.length+': '+esc(st.faltam.join(', '))}</td>`:''}</tr>`}).join('')}</tbody></table></div>`;
 }
 function cartoes(lista){
+  const dv=S.docs;
   return '<div class="grid">'+lista.map(n=>{
-    const st=situacao(n),ok=DOCS.length-st.faltam.length;
-    return `<section class="folder ${st.completo?'done':'pend'} ${nv(n)}"><div class="top"><span class="av">${esc(ini(n))}</span><h3 class="lnk" role="button" tabindex="0" data-p="${encodeURIComponent(n)}">${esc(n)}</h3>${chip(n)}<span class="badge">${st.completo?'Completo':ok+' de '+DOCS.length}</span></div>${seg(n)}${S.plan.length?`<p style="margin:0 0 6px;font-size:12.5px;color:var(--mut)">Contrato: ${(()=>{const c=casar().mapa[n];return c?esc(c.nome)+manV(n):'sem vínculo'})()} <button class="mini" data-p="${encodeURIComponent(n)}" data-foco="1">Vincular</button></p>`:''}
-     ${DOCS.map(d=>{
+    const st=situacao(n),ok=DOCS.length-st.faltam.length,x=sitC(n),c=x.c,enc=encodeURIComponent(n);
+    const ct=S.plan.length?`<div class="ct ${x.k}"><div class="ctl"><span class="rotulo">Contrato</span>${pillC(n)}${manV(n)}<button class="mini" data-p="${enc}" data-foco="1">Vincular</button></div>${c?`<div class="ctd"><b>${c.ren?D_(c.ren):'—'}</b><span>${x.d!==null?cap(txtD(x.d)):'sem data de renovação'}</span></div><small>${esc(c.nome)}${c.status?' · '+esc(c.status):''}</small>`:'<small>Sem vínculo com a planilha</small>'}</div>`:'';
+    const dl=dv?seg(n)+DOCS.map(d=>{
        const arqs=S.pessoas[n].docs[d.k],a=arqs.length>0,chk=tem(n,d.k);
        const tag=a?(chk?'':'ignorado'):(chk?'marcado à mão':'falta');
        const det=a?`<span class="arq" title="${esc(arqs.join('\n'))}">${esc(base(arqs[0]))}${arqs.length>1?' + '+(arqs.length-1)+' outro(s)':''}</span>`:'';
-       return `<label><input type="checkbox" data-n="${encodeURIComponent(n)}" data-k="${d.k}" ${chk?'checked':''}><span>${esc(d.n)}${det}</span><span class="tag ${chk?'':'no'}">${tag}</span></label>`;
-     }).join('')}</section>`;
+       return `<label><input type="checkbox" data-n="${enc}" data-k="${d.k}" ${chk?'checked':''}><span>${esc(d.n)}${det}</span><span class="tag ${chk?'':'no'}">${tag}</span></label>`;
+     }).join(''):'';
+    return `<section class="folder ${dv?(st.completo?'done':'pend'):'k-'+x.k} ${nv(n)}"><div class="top"><span class="av">${esc(ini(n))}</span><h3 class="lnk" role="button" tabindex="0" data-p="${enc}">${esc(n)}</h3>${rgTag(n)}${dv?`<span class="badge">${st.completo?'Completo':ok+' de '+DOCS.length}</span>`:''}</div>${ct}${dl}</section>`;
   }).join('')+'</div>';
 }
 function render(){
@@ -424,18 +444,23 @@ function render(){
   const R=(k,t)=>`<button class="${S.reg===k?'on':''}" data-r="${k}" aria-pressed="${S.reg===k}">${t}</button>`;
   const nP=todos.filter(n=>!situacao(n).completo).length,nPg=todosB.filter(n=>!situacao(n).completo).length,nA=S.plan.length?todosB.filter(alerta).length:0;
   document.title=(todosB.length?'('+nPg+' pendentes'+(nA?' · '+nA+' contratos em alerta':'')+') ':'')+'Checklist de Documentos – Ativos';
-  $('#filtros').innerHTML='<span class="rotulo">Regime:</span>'+R('','Todos ('+todosB.length+')')+R('PJ','PJ ('+nReg.PJ+')')+R('CLT','CLT ('+nReg.CLT+')')+(nReg['-']?R('-','Sem regime ('+nReg['-']+')'):'')+'<span class="sep"></span>'+
-   F('todos','Todos ('+todos.length+')')+F('pend','Pendentes ('+nP+')')+F('ok','Completos ('+(todos.length-nP)+')')+'<span class="sep"></span>'+
-   `<label>Ordenar: <select id="ordem"><option value="falta" ${S.ordem==='falta'?'selected':''}>Mais pendências primeiro</option><option value="venc" ${S.ordem==='venc'?'selected':''}>Vencimento mais próximo</option><option value="nome" ${S.ordem==='nome'?'selected':''}>Nome (A–Z)</option></select></label><span class="sep"></span>`+V('matriz','Matriz')+V('cartoes','Pastas');
+  const G=(t,h)=>`<div class="fg"><span class="rotulo">${t}</span>${h}</div>`,SG=h=>`<div class="segc">${h}</div>`;
+  $('#filtros').innerHTML=
+   G('Regime',SG(R('','Todos ('+todosB.length+')')+R('PJ','PJ ('+nReg.PJ+')')+R('CLT','CLT ('+nReg.CLT+')')+(nReg['-']?R('-','Sem regime ('+nReg['-']+')'):'')))+
+   (S.docs?G('Situação dos documentos',SG(F('todos','Todos ('+todos.length+')')+F('pend','Pendentes ('+nP+')')+F('ok','Completos ('+(todos.length-nP)+')'))):'')+
+   G('Ordenar por',`<select id="ordem">${S.docs?`<option value="falta" ${S.ordem==='falta'?'selected':''}>Mais documentos pendentes</option>`:''}<option value="venc" ${S.ordem==='venc'||(!S.docs&&S.ordem==='falta')?'selected':''}>Vencimento mais próximo</option><option value="nome" ${S.ordem==='nome'?'selected':''}>Nome (A–Z)</option></select>`)+
+   G('Visualização',SG(V('matriz','Matriz')+V('cartoes','Pastas')))+
+   `<button id="btnDocs" class="tgl ${S.docs?'on':''}" role="switch" aria-checked="${S.docs}"><span class="sw"></span>Mostrar documentos</button>`;
   if(!todosB.length){$('#info').textContent='';$('#grid').innerHTML='<div class="msg">Nenhuma subpasta de pessoa encontrada nesta pasta. Confira se você escolheu a pasta #ATIVOS (a que contém uma subpasta por pessoa).</div>';renderDiag();return}
   let lista=todos.filter(n=>norm(n).includes(norm(S.busca)));
-  if(S.filtro==='ok'||S.filtro==='pend')lista=lista.filter(n=>(S.filtro==='ok')===situacao(n).completo);
+  if(S.docs&&(S.filtro==='ok'||S.filtro==='pend'))lista=lista.filter(n=>(S.filtro==='ok')===situacao(n).completo);
   if(S.cs)lista=lista.filter(n=>sitC(n).k===S.cs);
-  if(S.docF)lista=lista.filter(n=>!tem(n,S.docF));
-  if(S.ordem==='falta')lista.sort((a,b)=>situacao(b).faltam.length-situacao(a).faltam.length||cmp(a,b));
-  else if(S.ordem==='venc')lista.sort((a,b)=>(sitC(a).d??1e9)-(sitC(b).d??1e9)||cmp(a,b));
+  if(S.docs&&S.docF)lista=lista.filter(n=>!tem(n,S.docF));
+  const ord=(!S.docs&&S.ordem==='falta')?'venc':S.ordem;
+  if(ord==='falta')lista.sort((a,b)=>situacao(b).faltam.length-situacao(a).faltam.length||cmp(a,b));
+  else if(ord==='venc')lista.sort((a,b)=>(sitC(a).d??1e9)-(sitC(b).d??1e9)||cmp(a,b));
   const dn=DOCS.find(d=>d.k===S.docF);
-  $('#info').innerHTML=`Mostrando <b>${lista.length}</b> de ${todos.length} pessoas`+(dn?` sem <b>${esc(dn.n)}</b> <button data-d="${dn.k}">Limpar filtro</button>`:'')+(S.cs?` · contrato <b>${{ok:'em dia',perto:'perto de vencer',venc:'vencido',sem:'sem data ou vínculo'}[S.cs]}</b> <button data-c="${S.cs}">Limpar filtro</button>`:'')+' · clique em ✓ ou ✕ para corrigir à mão';
+  $('#info').innerHTML=`Mostrando <b>${lista.length}</b> de ${todos.length} pessoas`+(dn?` sem <b>${esc(dn.n)}</b> <button data-d="${dn.k}">Limpar filtro</button>`:'')+(S.cs?` · contrato <b>${{ok:'em dia',perto:'perto de vencer',venc:'vencido',sem:'sem data ou vínculo'}[S.cs]}</b> <button data-c="${S.cs}">Limpar filtro</button>`:'')+(S.docs?' · clique em ✓ ou ✕ para corrigir à mão':'');
   const sl=$('.mx')?.scrollLeft||0;
   $('#grid').innerHTML=lista.length?(S.vista==='matriz'?matriz(lista):cartoes(lista)):'<div class="msg">Nada encontrado com esses filtros.</div>';
   if(sl&&$('.mx'))$('.mx').scrollLeft=sl;
@@ -738,6 +763,7 @@ document.addEventListener('click',async e=>{
     if(b.dataset.d)S.docF=S.docF===b.dataset.d?'':b.dataset.d;
     render();return;
   }
+  if(e.target.closest?.('#btnDocs')){S.docs=!S.docs;try{localStorage.setItem('docs',S.docs?'1':'0')}catch(x){}render();return}
   if(e.target.id==='btnIgn'){S.ignorar=$('#ign').value;S.manVer++;await salvar();await scan()}
 });
 document.addEventListener('change',async e=>{

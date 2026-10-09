@@ -113,6 +113,32 @@ details{font-size:14px}summary{cursor:pointer;color:var(--link);font-weight:600}
 #dlg .vinc{background:#f1f5f3;border-left:4px solid var(--link);padding:10px 12px;margin:10px 0 0}#dlg .vinc p{margin:0 0 8px;font-size:13.5px}#dlg .vinc select{max-width:100%;width:100%;margin-bottom:8px;border:1px solid var(--line);background:#fff;padding:7px;border-radius:3px}#dlg .vinc button{margin-right:6px}
 #dlg .ctx{background:#fff8e4;border-left:4px solid var(--acc);padding:10px 12px;margin:10px 0 0}#dlg .ctx select{width:100%;margin-bottom:8px;border:1px solid var(--line);background:#fff;padding:7px;border-radius:3px}#dlg .ctx pre{max-height:220px;overflow:auto;background:#fff;border:1px solid var(--line);padding:8px;font-size:12px;white-space:pre-wrap}#dlg .aviso{color:var(--miss);font-weight:600}#dlg .ctx .g{margin-top:4px}
 .pill{font-size:12px;font-weight:700;border-radius:4px;padding:2px 8px;background:var(--okbg);color:var(--ok);white-space:nowrap}.pill.no{background:var(--missbg);color:var(--miss)}.pill.warn{background:#fff0c9;color:#7d5600}
+.ctrs{margin-bottom:34px;padding-bottom:30px;border-bottom:2px solid var(--ink)}
+.ctop{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 18px;margin-bottom:14px}
+.ctop h2{margin:0;font-size:20px;font-weight:700;letter-spacing:-.01em}
+.ctop small{color:var(--mut);font-size:12.5px}
+.ctop label{margin-left:auto;font-size:13px;color:var(--mut)}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:14px}
+.kpi{display:flex;flex-direction:column;gap:3px;text-align:left;background:var(--card);color:var(--ink);border:1px solid var(--line);border-left:6px solid var(--line);border-radius:4px;padding:13px 16px}
+.kpi:hover{background:#eef2f0}
+.kpi.on{background:#fff4d6;box-shadow:inset 0 0 0 2px var(--acc)}
+.kpi b{font:700 40px/1 "Bricolage Grotesque",sans-serif}
+.kpi strong{font-size:14.5px;font-weight:600}
+.kpi span{font-size:12.5px;color:var(--mut)}
+.kpi.ok{border-left-color:var(--ok)}.kpi.ok b{color:var(--ok)}
+.kpi.pe{border-left-color:var(--acc)}.kpi.pe b{color:#9a6b00}
+.kpi.ve{border-left-color:var(--miss)}.kpi.ve b{color:var(--miss)}
+.kpi.se{border-left-color:#8a9894}.kpi.se b{color:var(--mut)}
+.prox{margin-top:18px}
+.prox h3{margin:0 0 6px;font-size:15px;font-weight:700}
+.prox ol{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:0 28px}
+.prox li{display:flex;gap:6px;align-items:center;padding:7px 4px;border-bottom:1px solid var(--line);font-size:14px}
+.prox li .lnk{font-weight:600}
+.prox li small{margin-left:auto;padding-left:10px;color:var(--mut);white-space:nowrap}
+.prox li small.no{color:var(--miss);font-weight:600}
+.rg{font-size:11px;font-weight:700;padding:1px 6px;border-radius:3px;background:#dcebe7;color:var(--link);margin-left:6px;vertical-align:middle}
+.rg.clt{background:#e8e3f3;color:#5a3f8f}
+.rotulo{font-size:12.5px;color:var(--mut)}
 </style>
 </head>
 <body>
@@ -157,7 +183,8 @@ const LISTAGENS=10;         // listagens de pasta simultâneas (evita erro em pa
 const MAX_NIVEL=6;          // quantos níveis de subpasta dentro de cada pessoa
 const PARALELO=8;           // pastas lidas ao mesmo tempo
 const IGN_ARQ=/^(~\$|\.|thumbs\.db$|desktop\.ini$)/i;
-const S={plan:[],planH:null,planOk:false,planMs:0,planVer:0,planNome:'(não encontrada na pasta)',cx:null,log:[],handle:null,pessoas:{},manual:{},ignorar:'',last:null,ts:null,lastMs:0,dur:0,erros:[],scanning:false,manVer:0,salvando:0,novos:new Map(),aviso:'',hora:'',ultMud:'',timer:null,filtro:'todos',busca:'',diagP:'',docF:'',ordem:'falta',vista:'matriz'};
+const S={plan:[],planH:null,planOk:false,planMs:0,planVer:0,planNome:'(não encontrada na pasta)',cx:null,log:[],handle:null,pessoas:{},manual:{},ignorar:'',last:null,ts:null,lastMs:0,dur:0,erros:[],scanning:false,manVer:0,salvando:0,novos:new Map(),aviso:'',hora:'',ultMud:'',timer:null,filtro:'todos',busca:'',diagP:'',docF:'',ordem:'falta',vista:'matriz',reg:'',cs:'',lim:90};
+try{const _l=+localStorage.getItem('lim');if([30,60,90].includes(_l))S.lim=_l}catch(e){}
 const $=s=>document.querySelector(s);
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const norm=s=>s.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
@@ -329,12 +356,24 @@ const ini=n=>n.split(/\s+/).filter(Boolean).slice(0,2).map(w=>w[0]).join('').toU
 const seg=n=>'<div class="seg">'+DOCS.map(d=>`<i class="${tem(n,d.k)?'on':''}" title="${esc(d.n)}"></i>`).join('')+'</div>';
 const base=f=>f.split('/').pop();
 
+/* ---- painel de contratos (topo do dashboard) ---- */
+function painelContratos(nomes){
+  if(!S.plan.length)return'<div class="ctrs"><div class="ctop"><h2>Contratos</h2></div><p class="hint">Conecte a planilha de contratos (botão no topo) para acompanhar os vencimentos aqui.</p></div>';
+  const g={ok:[],perto:[],venc:[],sem:[]};
+  nomes.forEach(n=>{const x=sitC(n);g[x.k].push({n,s:x})});
+  const K=(k,cl,t,sub)=>`<button class="kpi ${cl} ${S.cs===k?'on':''}" data-c="${k}" aria-pressed="${S.cs===k}"><b>${g[k].length}</b><strong>${t}</strong><span>${sub}</span></button>`;
+  const prox=[...g.venc,...g.perto].sort((x,y)=>(x.s.d??-1e9)-(y.s.d??-1e9)).slice(0,10);
+  return `<div class="ctrs"><div class="ctop"><h2>Contratos</h2><small>Hoje é ${new Date().toLocaleDateString('pt-BR')} · os dias são recalculados todo dia</small>
+   <label>Perto de vencer: <select id="lim">${[30,60,90].map(x=>`<option value="${x}" ${S.lim===x?'selected':''}>até ${x} dias</option>`).join('')}</select></label></div>
+   <div class="kpis">${K('ok','ok','Em dia','vencem em mais de '+S.lim+' dias')}${K('perto','pe','Perto de vencer','vencem em até '+S.lim+' dias')}${K('venc','ve','Vencidos','precisam de renovação')}${g.sem.length?K('sem','se','Sem data ou vínculo','conferir na planilha'):''}</div>
+   ${prox.length?`<div class="prox"><h3>Próximos vencimentos</h3><ol>${prox.map(({n,s:x})=>`<li><span class="lnk" role="button" tabindex="0" data-p="${encodeURIComponent(n)}">${esc(n)}</span>${rgTag(n)}<small class="${x.k==='venc'?'no':''}">${x.c.ren?D_(x.c.ren)+' · ':''}${x.d===null?'vencido':txtD(x.d)}</small></li>`).join('')}</ol></div>`:''}</div>`;
+}
 /* ---- resumo no topo ---- */
 function resumo(nomes){
   const tot=nomes.length,comp=nomes.filter(n=>situacao(n).completo).length;
   const slots=tot*DOCS.length,tem_=nomes.reduce((s,n)=>s+DOCS.filter(d=>tem(n,d.k)).length,0);
   const pct=slots?Math.round(tem_/slots*100):0,C=2*Math.PI*52;
-  return `<div class="sum">
+  return painelContratos(nomes)+`<div class="sum">
    <div class="panel hero">
     <svg width="130" height="130" viewBox="0 0 130 130" role="img" aria-label="${pct}% dos documentos entregues">
      <circle cx="65" cy="65" r="52" fill="none" stroke="var(--missbg)" stroke-width="16"/>
@@ -374,20 +413,29 @@ function cartoes(lista){
 }
 function render(){
   $('#intro').hidden=true;$('#app').hidden=false;$('#btnScan').hidden=false;$('#btnCsv').hidden=false;$('#btnPlan').hidden=false;
-  const todos=Object.keys(S.pessoas).sort(cmp);
+  const todosB=Object.keys(S.pessoas).sort(cmp);
+  if(!S.plan.length)S.cs='';
+  const nReg={PJ:0,CLT:0,'-':0};todosB.forEach(n=>nReg[regDe(n)||'-']++);
+  if(S.reg&&!nReg[S.reg])S.reg='';
+  const todos=S.reg?todosB.filter(n=>(regDe(n)||'-')===S.reg):todosB;
   $('#resumo').innerHTML=todos.length?resumo(todos):'';
   const F=(k,t)=>`<button class="${S.filtro===k?'on':''}" data-f="${k}">${t}</button>`;
   const V=(k,t)=>`<button class="${S.vista===k?'on':''}" data-v="${k}">${t}</button>`;
-  const nP=todos.filter(n=>!situacao(n).completo).length;document.title=(todos.length?'('+nP+' pendentes) ':'')+'Checklist de Documentos – Ativos';
-  $('#filtros').innerHTML=F('todos','Todos ('+todos.length+')')+F('pend','Pendentes ('+nP+')')+F('ok','Completos ('+(todos.length-nP)+')')+(S.plan.length?F('contr','Contrato com alerta ('+todos.filter(alerta).length+')'):'')+'<span class="sep"></span>'+
-   `<label>Ordenar: <select id="ordem"><option value="falta" ${S.ordem==='falta'?'selected':''}>Mais pendências primeiro</option><option value="nome" ${S.ordem==='nome'?'selected':''}>Nome (A–Z)</option></select></label><span class="sep"></span>`+V('matriz','Matriz')+V('cartoes','Pastas');
-  if(!todos.length){$('#info').textContent='';$('#grid').innerHTML='<div class="msg">Nenhuma subpasta de pessoa encontrada nesta pasta. Confira se você escolheu a pasta #ATIVOS (a que contém uma subpasta por pessoa).</div>';renderDiag();return}
+  const R=(k,t)=>`<button class="${S.reg===k?'on':''}" data-r="${k}" aria-pressed="${S.reg===k}">${t}</button>`;
+  const nP=todos.filter(n=>!situacao(n).completo).length,nPg=todosB.filter(n=>!situacao(n).completo).length,nA=S.plan.length?todosB.filter(alerta).length:0;
+  document.title=(todosB.length?'('+nPg+' pendentes'+(nA?' · '+nA+' contratos em alerta':'')+') ':'')+'Checklist de Documentos – Ativos';
+  $('#filtros').innerHTML='<span class="rotulo">Regime:</span>'+R('','Todos ('+todosB.length+')')+R('PJ','PJ ('+nReg.PJ+')')+R('CLT','CLT ('+nReg.CLT+')')+(nReg['-']?R('-','Sem regime ('+nReg['-']+')'):'')+'<span class="sep"></span>'+
+   F('todos','Todos ('+todos.length+')')+F('pend','Pendentes ('+nP+')')+F('ok','Completos ('+(todos.length-nP)+')')+'<span class="sep"></span>'+
+   `<label>Ordenar: <select id="ordem"><option value="falta" ${S.ordem==='falta'?'selected':''}>Mais pendências primeiro</option><option value="venc" ${S.ordem==='venc'?'selected':''}>Vencimento mais próximo</option><option value="nome" ${S.ordem==='nome'?'selected':''}>Nome (A–Z)</option></select></label><span class="sep"></span>`+V('matriz','Matriz')+V('cartoes','Pastas');
+  if(!todosB.length){$('#info').textContent='';$('#grid').innerHTML='<div class="msg">Nenhuma subpasta de pessoa encontrada nesta pasta. Confira se você escolheu a pasta #ATIVOS (a que contém uma subpasta por pessoa).</div>';renderDiag();return}
   let lista=todos.filter(n=>norm(n).includes(norm(S.busca)));
-  if(S.filtro==='contr')lista=lista.filter(alerta);else if(S.filtro!=='todos')lista=lista.filter(n=>(S.filtro==='ok')===situacao(n).completo);
+  if(S.filtro==='ok'||S.filtro==='pend')lista=lista.filter(n=>(S.filtro==='ok')===situacao(n).completo);
+  if(S.cs)lista=lista.filter(n=>sitC(n).k===S.cs);
   if(S.docF)lista=lista.filter(n=>!tem(n,S.docF));
   if(S.ordem==='falta')lista.sort((a,b)=>situacao(b).faltam.length-situacao(a).faltam.length||cmp(a,b));
+  else if(S.ordem==='venc')lista.sort((a,b)=>(sitC(a).d??1e9)-(sitC(b).d??1e9)||cmp(a,b));
   const dn=DOCS.find(d=>d.k===S.docF);
-  $('#info').innerHTML=`Mostrando <b>${lista.length}</b> de ${todos.length} pessoas`+(dn?` sem <b>${esc(dn.n)}</b> <button data-d="${dn.k}">Limpar filtro</button>`:'')+' · clique em ✓ ou ✕ para corrigir à mão';
+  $('#info').innerHTML=`Mostrando <b>${lista.length}</b> de ${todos.length} pessoas`+(dn?` sem <b>${esc(dn.n)}</b> <button data-d="${dn.k}">Limpar filtro</button>`:'')+(S.cs?` · contrato <b>${{ok:'em dia',perto:'perto de vencer',venc:'vencido',sem:'sem data ou vínculo'}[S.cs]}</b> <button data-c="${S.cs}">Limpar filtro</button>`:'')+' · clique em ✓ ou ✕ para corrigir à mão';
   const sl=$('.mx')?.scrollLeft||0;
   $('#grid').innerHTML=lista.length?(S.vista==='matriz'?matriz(lista):cartoes(lista)):'<div class="msg">Nada encontrado com esses filtros.</div>';
   if(sl&&$('.mx'))$('.mx').scrollLeft=sl;
@@ -415,10 +463,10 @@ function mostrarArquivos(){
 /* ---- exportar ---- */
 function csv(){
   const q=v=>'"'+String(v).replace(/"/g,'""')+'"';
-  const linhas=[['Pessoa',...DOCS.map(d=>d.n),'Situação','Contrato','Renovação'].map(q).join(';')];
+  const linhas=[['Pessoa',...DOCS.map(d=>d.n),'Situação','Regime','Contrato','Renovação','Dias para vencer'].map(q).join(';')];
   Object.keys(S.pessoas).sort(cmp).forEach(n=>{
-    const st=situacao(n),cc=casar().mapa[n],dd=cc?dias(cc):null;
-    linhas.push([n,...DOCS.map(d=>tem(n,d.k)?'Sim':'Não'),st.completo?'Completo':'Falta: '+st.faltam.join(', '),cc?(/vencid/i.test(cc.status)||dd!==null&&dd<0?'Vencido':dd!==null&&dd<=90?'Vence em '+dd+'d':'Vigente'):'Sem vínculo',cc?D_(cc.ren):''].map(q).join(';'));
+    const st=situacao(n),x=sitC(n),cc=x.c;
+    linhas.push([n,...DOCS.map(d=>tem(n,d.k)?'Sim':'Não'),st.completo?'Completo':'Falta: '+st.faltam.join(', '),regDe(n)||'',x.k==='sem'?x.txt:x.k==='venc'?'Vencido':x.k==='perto'?'Vence em '+x.d+'d':'Em dia',cc?D_(cc.ren):'',x.d===null?'':x.d].map(q).join(';'));
   });
   const a=document.createElement('a');
   a.href=URL.createObjectURL(new Blob(['\ufeff'+linhas.join('\r\n')],{type:'text/csv;charset=utf-8'}));
@@ -435,7 +483,7 @@ function parsePlan(wb){
     hi=R.findIndex(r=>r&&r.some(isN)&&r.some(h=>/renov|vencim|cnpj|razao|status/.test(nrm(h))));if(hi>=0)break}
   if(hi<0)return[];
   const H=R[hi].map(h=>nrm(h).trim()),col=k=>H.findIndex(h=>h.startsWith(k)),nc=R[hi].findIndex(isN);
-  const K={nome:nc,razao:col('razao'),cnpj:col('cnpj'),adm:col('data adm'),ren:col('renov')>=0?col('renov'):col('vencim'),status:col('status'),prazo:col('prazo'),prop:col('proposta'),teams:col('fluxo'),jur:col('juridico'),hh:col('valor hh'),hi:col('valor hi'),he:col('valor he'),alm:col('almoc'),jan:col('jantar'),km:col('km'),cad:col('cadastros'),part:col('particul')};
+  const K={nome:nc,razao:col('razao'),cnpj:col('cnpj'),adm:col('data adm'),ren:col('renov')>=0?col('renov'):col('vencim'),status:col('status'),prazo:col('prazo'),prop:col('proposta'),teams:col('fluxo'),jur:col('juridico'),hh:col('valor hh'),hi:col('valor hi'),he:col('valor he'),alm:col('almoc'),jan:col('jantar'),km:col('km'),cad:col('cadastros'),part:col('particul'),reg:H.findIndex(h=>/^(regime|tipo de contrat|tipo contrat|vinculo|modalidade|contratacao|pj ?\/ ?clt|clt ?\/ ?pj)/.test(h))};
   const dmy=t=>{const m=t.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);return m?m[3]+'-'+m[2].padStart(2,'0')+'-'+m[1].padStart(2,'0'):t};
   const v=x=>{if(x instanceof Date&&!isNaN(x)){const d=new Date(x.getTime()+432e5);return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')}return typeof x==='number'?x:dmy(String(x??'').replace(/\s+/g,' ').trim())};
   return R.slice(hi+1).filter(r=>r&&String(r[nc]??'').trim()).map(r=>Object.fromEntries(Object.entries(K).map(([k,i])=>[k,i<0?'':v(r[i])])));
@@ -480,12 +528,40 @@ async function lerPlan(){
     if(!$('#app').hidden)render();
   }catch(e){setStatus('Planilha: '+e.message)}finally{S.lendoPlan=false}
 }
-const dias=c=>{const d=c.ren?Math.round((new Date(c.ren+'T12:00')-new Date())/864e5):NaN;return isNaN(d)?null:d};
-const chip=n=>{const c=casar().mapa[n];if(!c)return'';const d=dias(c);
-  return /vencid/i.test(c.status)||d!==null&&d<0?' <span class="pill no">Contrato vencido</span>':d!==null&&d<=90?' <span class="pill warn">Vence em '+d+'d</span>':''};
-const alerta=n=>{const c=casar().mapa[n];if(!c)return false;const d=dias(c);return /vencid/i.test(c.status)||d!==null&&d<=90};
-const pillC=n=>{if(!S.plan.length)return'<small>—</small>';const c=casar().mapa[n];if(!c)return'<span class="pill warn">Sem vínculo</span>';const d=dias(c);
-  return /vencid/i.test(c.status)||d!==null&&d<0?'<span class="pill no">Vencido'+(d!==null?' há '+(-d)+'d':'')+'</span>':d!==null&&d<=90?'<span class="pill warn">Vence em '+d+'d</span>':'<span class="pill">Vigente</span>'};
+/* dias até uma data (AAAA-MM-DD), contados em dias de calendário a partir de HOJE à meia-noite:
+   hoje 10, amanhã 9, sem depender da hora do dia */
+const hojeD=()=>{const d=new Date();return new Date(d.getFullYear(),d.getMonth(),d.getDate())};
+const diasAte=t=>{const m=/^(\d{4})-(\d\d)-(\d\d)$/.exec(t||'');return m?Math.round((new Date(+m[1],+m[2]-1,+m[3])-hojeD())/864e5):null};
+const dias=c=>diasAte(c.ren);
+const stVenc=c=>{const t=nrm(c.status);return /vencid/.test(t)&&!/nao vencid|a vencer/.test(t)};
+const txtD=d=>d<0?'vencido há '+(-d)+(d===-1?' dia':' dias'):d===0?'vence hoje':d===1?'vence amanhã':'vence em '+d+' dias';
+const cap=t=>t.charAt(0).toUpperCase()+t.slice(1);
+/* situação do contrato: ok (em dia) · perto (vence em até S.lim dias) · venc (vencido) · sem (sem vínculo ou sem data) */
+function sitC(n){
+  const c=casar().mapa[n];
+  if(!c)return{k:'sem',d:null,c:null,txt:'Sem vínculo'};
+  const d=dias(c);
+  if(stVenc(c)||(d!==null&&d<0))return{k:'venc',d,c};
+  if(d===null)return{k:'sem',d,c,txt:'Sem data'};
+  return{k:d<=S.lim?'perto':'ok',d,c};
+}
+/* regime: planilha (coluna regime/tipo) > marcação manual > tem CNPJ = PJ > ligado à planilha sem CNPJ = CLT */
+function regDe(n){
+  const o=S.manual.__reg?.[n];if(o==='PJ'||o==='CLT')return o;
+  const c=casar().mapa[n];
+  if(c&&c.reg){const r=nrm(c.reg);if(/\bclt\b/.test(r))return'CLT';if(/\bpj\b|juridica|cnpj/.test(r))return'PJ'}
+  if(c&&String(c.cnpj||'').replace(/\D/g,'').length>=14)return'PJ';
+  if(S.pessoas[n]?.docs.cnpj.length)return'PJ';
+  return c?'CLT':'';
+}
+const rgTag=n=>{const r=regDe(n);return r?`<span class="rg ${r==='CLT'?'clt':''}" title="Regime">${r}</span>`:''};
+const chip=n=>{const s=sitC(n);return rgTag(n)+(s.k==='venc'?' <span class="pill no">Contrato vencido</span>':s.k==='perto'?' <span class="pill warn">'+cap(txtD(s.d))+'</span>':'')};
+const alerta=n=>{const k=sitC(n).k;return k==='venc'||k==='perto'};
+const pillC=n=>{if(!S.plan.length)return'<small>—</small>';const s=sitC(n);
+  if(s.k==='sem')return'<span class="pill warn">'+s.txt+'</span>';
+  if(s.k==='venc')return'<span class="pill no">'+(s.d!==null?cap(txtD(s.d)):'Vencido')+'</span>';
+  if(s.k==='perto')return'<span class="pill warn">'+cap(txtD(s.d))+'</span>';
+  return'<span class="pill">Em dia · '+s.d+'d</span>'};
 const manV=n=>S.plan.length&&S.manual.__vinc?.[n]?' <small title="Vínculo definido à mão">(manual)</small>':'';
 const T_=s=>s===''||s==null?'—':esc(s);
 const M_=v=>v===''||v==null||v===0||v==='-'?'—':typeof v==='number'?'R$ '+v.toLocaleString('pt-BR',{minimumFractionDigits:2}):esc(v);
@@ -581,8 +657,8 @@ function extrair(raw,path){
   return {tipo,razao:rz?rz[1].trim():'',cnpjContratada:cd?cd[1]:'',cnpjContratante:ct?ct[1]:'',cnpjs,objeto,vig,ini,fim,prazo,valores:[...new Set(valores)],ultima:ds.length?ds[ds.length-1].iso:'',curto:flat.length<80,texto:raw.trim().slice(0,4000)};
 }
 function htmlContrato(n,c,i,d){
-  const f=c[i],dd=d.fim?Math.round((new Date(d.fim+'T12:00')-new Date())/864e5):null;
-  const sit=dd===null?'':dd<0?` <span class="pill no">vencido há ${-dd} dias</span>`:dd<=90?` <span class="pill warn">vence em ${dd} dias</span>`:` <span class="pill">vigente (${dd} dias)</span>`;
+  const f=c[i],dd=d.fim?diasAte(d.fim):null;
+  const sit=dd===null?'':dd<0?` <span class="pill no">vencido há ${-dd} dias</span>`:dd<=S.lim?` <span class="pill warn">vence em ${dd} dias</span>`:` <span class="pill">vigente (${dd} dias)</span>`;
   const g=[['Documento',T_(d.tipo)],['Arquivo',esc(f.path)+' <small>(modificado em '+new Date(f.mod).toLocaleDateString('pt-BR')+')</small>'],['Contratada',T_(d.razao)],['CNPJ contratada',T_(d.cnpjContratada)],['CNPJ contratante',T_(d.cnpjContratante)],['Início',T_(D_(d.ini))],['Término',T_(D_(d.fim))+sit],['Prazo',T_(d.prazo)],['Vigência (trecho)',T_(d.vig)],['Objeto',T_(d.objeto)],['Valores',d.valores.length?'<ul style="margin:0;padding-left:16px">'+d.valores.map(v=>'<li>'+esc(v)+'</li>').join('')+'</ul>':'—'],['Última data citada',T_(D_(d.ultima))]];
   return (c.length>1?`<select id="ctSel" aria-label="Documento da pasta">${c.map((x,j)=>`<option value="${j}" ${j===i?'selected':''}>${esc(x.path)}${j===0?' (mais recente)':''}</option>`).join('')}</select>`:'')+
     (d.curto?'<p class="aviso">Quase nenhum texto foi lido: o arquivo parece ser um PDF escaneado (imagem). Abra o arquivo para conferir.</p>':'')+
@@ -605,18 +681,20 @@ function abrirPessoa(n,foco){
   let h=`<button class="x" data-x aria-label="Fechar">×</button><h2>${esc(n)}</h2><h4>Contrato, minuta ou aditivo mais recente (da pasta)</h4><div class="ctx" id="ctArq">Procurando…</div><h4>Documentos pendentes (pasta)</h4>`+
     (st.completo?'<p class="okp">Nenhum: todos os documentos foram entregues.</p>':`<ul class="pend">${st.faltam.map(f=>`<li>${esc(f)}</li>`).join('')}</ul>`);
   if(ent.length)h+=`<details><summary>Entregues (${ent.length})</summary><ul>${ent.map(d=>`<li>${esc(d.n)}${p.docs[d.k].length?' <small>— '+esc(p.docs[d.k].join(', '))+'</small>':' <small>(marcado à mão)</small>'}</li>`).join('')}</ul></details>`;
+  {const rm=S.manual.__reg?.[n];
+   h+=`<h4>Regime</h4><div class="vinc"><p>Regime atual: <b>${regDe(n)||'não identificado'}</b>${rm?' (definido à mão)':' (automático)'}</p><select id="regSel" aria-label="Regime"><option value="">Automático</option><option value="PJ" ${rm==='PJ'?'selected':''}>PJ</option><option value="CLT" ${rm==='CLT'?'selected':''}>CLT</option></select><button data-reg="${encodeURIComponent(n)}">Salvar regime</button></div>`}
   h+='<h4>Contrato (planilha)</h4>';
   if(!S.plan.length)h+='<p>Planilha de contratos não encontrada. Use o botão "Planilha de contratos" no topo ou coloque o .xlsx na raiz da pasta #ATIVOS.</p>';
   else h+=blocoVinc(n,c);
   if(!c){}
   else{
     const d=dias(c),pc=[];
-    if(/vencid/i.test(c.status)||d!==null&&d<0)pc.push('Contrato vencido: renovar');
+    if(stVenc(c)||d!==null&&d<0)pc.push('Contrato vencido: renovar');
     if(!c.teams)pc.push('Fluxo Teams não finalizado');
     if(!c.jur)pc.push('Sem assinatura do jurídico');
     if(/incompleto|process/i.test(c.cad))pc.push('Cadastros: '+c.cad);
     if(pc.length)h+=`<ul class="pend">${pc.map(x=>`<li>${esc(x)}</li>`).join('')}</ul>`;
-    const venc=d===null?'':d<0?` <span class="pill no">vencido há ${-d} dias</span>`:d<=90?` <span class="pill warn">vence em ${d} dias</span>`:` <small>(em ${d} dias)</small>`;
+    const venc=d===null?'':d<0?` <span class="pill no">${txtD(d)}</span>`:d<=S.lim?` <span class="pill warn">${txtD(d)}</span>`:` <small>(em ${d} dias)</small>`;
     const g=[['Razão social',T_(c.razao)],['CNPJ',T_(c.cnpj)],['Admissão',T_(D_(c.adm))],['Renovação',T_(D_(c.ren))+venc],['Status',T_(c.status)],['Prazo',T_(c.prazo)],['Proposta',T_(D_(c.prop))],['Fluxo Teams',T_(c.teams)],['Jurídico',T_(c.jur)],['Cadastros',T_(c.cad)],['Valor HH',M_(c.hh)],['Valor HI',M_(c.hi)],['Valor HE',M_(c.he)],['Almoço',M_(c.alm)],['Jantar',M_(c.jan)],['KM (R$/km)',M_(c.km)],['Particularidades',T_(c.part)]];
     h+=`<dl class="g">${g.map(([a,b])=>`<dt>${a}</dt><dd>${b}</dd>`).join('')}</dl>`;
   }
@@ -627,19 +705,36 @@ document.addEventListener('click',e=>{
     if(v)V[n]=v;else delete V[n];
     if(!Object.keys(V).length)delete S.manual.__vinc;
     S.manVer++;S.cx=null;render();salvar();guardarCache();abrirPessoa(n);return}
+  const rb=e.target.closest?.('[data-reg]');if(rb){const n=decodeURIComponent(rb.dataset.reg),v=$('#regSel').value,RG=(S.manual.__reg??={});
+    if(v)RG[n]=v;else delete RG[n];
+    if(!Object.keys(RG).length)delete S.manual.__reg;
+    S.manVer++;render();salvar();guardarCache();abrirPessoa(n);return}
   const l=e.target.closest?.('[data-p]');if(l){abrirPessoa(decodeURIComponent(l.dataset.p),l.dataset.foco==='1');return}
   if(e.target.closest?.('[data-x]')||e.target.id==='dlg')$('#dlg').close();
 });
 document.addEventListener('keydown',e=>{const l=e.target.closest?.('[data-p]');if(l&&(e.key==='Enter'||e.key===' ')){e.preventDefault();abrirPessoa(decodeURIComponent(l.dataset.p),l.dataset.foco==='1')}});
-setInterval(()=>lerPlan(),5000);   // confere a cada 10 s se a planilha da pasta mudou
+setInterval(()=>lerPlan(),10000);   // confere a cada 10 s se a planilha da pasta mudou
+
+/* ---- virada do dia: os dias para vencer andam sozinhos (hoje 10, amanhã 9) ---- */
+let diaVisto=hoje();
+function virouDia(){
+  const h=hoje();if(h===diaVisto)return;diaVisto=h;
+  const cruz=Object.keys(S.pessoas).filter(n=>{const x=sitC(n);return x.d!==null&&(x.d===S.lim||x.d===-1)});   // acabaram de entrar em "perto" ou "vencido"
+  if(!$('#app').hidden)render();
+  try{if(cruz.length&&'Notification' in window&&Notification.permission==='granted')
+    new Notification('Contratos mudaram de situação hoje',{body:cruz.slice(0,4).join('\n')+(cruz.length>4?'\n+'+(cruz.length-4)+' pessoas':'')})}catch(e){}
+}
+setInterval(virouDia,30000);
 
 /* ---- eventos ---- */
 $('#busca').addEventListener('input',e=>{S.busca=e.target.value;render()});
 document.addEventListener('click',async e=>{
-  const b=e.target.closest?.('[data-f],[data-d],[data-v]');
+  const b=e.target.closest?.('[data-f],[data-d],[data-v],[data-c],[data-r]');
   if(b){
     if(b.dataset.f)S.filtro=b.dataset.f;
     if(b.dataset.v)S.vista=b.dataset.v;
+    if(b.dataset.c)S.cs=S.cs===b.dataset.c?'':b.dataset.c;
+    if(b.dataset.r!==undefined)S.reg=b.dataset.r;
     if(b.dataset.d)S.docF=S.docF===b.dataset.d?'':b.dataset.d;
     render();return;
   }
@@ -647,6 +742,7 @@ document.addEventListener('click',async e=>{
 });
 document.addEventListener('change',async e=>{
   const t=e.target;
+  if(t.id==='lim'){S.lim=+t.value;try{localStorage.setItem('lim',t.value)}catch(e){}render();return}
   if(t.id==='ordem'){S.ordem=t.value;render();return}
   if(t.id==='ctSel'){S2.idx[S2.dlg]=+t.value;carregarContrato(S2.dlg,+t.value);return}
   if(t.id==='diagPessoa'){S.diagP=t.value;mostrarArquivos();return}
@@ -724,7 +820,7 @@ async function escolher(){
   }
 })();
 // ao voltar para a aba, verifica logo (se a última verificação já tem mais de 10 s)
-document.addEventListener('visibilitychange',()=>{if(!document.hidden&&S.handle&&Date.now()-S.lastMs>10000)scan({silent:true})});
+document.addEventListener('visibilitychange',()=>{if(!document.hidden)virouDia();if(!document.hidden&&S.handle&&Date.now()-S.lastMs>10000)scan({silent:true})});
 </script>
 </body>
 </html>

@@ -6,8 +6,6 @@
 <title>Checklist de Documentos – Ativos</title>
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;700;800&family=Hanken+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <style>
 :root{--bg:#e8ebe9;--card:#fbfcfb;--ink:#17201e;--mut:#5e6b67;--line:#d1d8d5;--acc:#e0a526;--link:#17615a;--ok:#2b8a57;--okbg:#dff0e5;--miss:#c4432b;--missbg:#f8e1d9;--tab:#d6e0dd;--deep:#133834;--rail2:#9dbab3}
 *{box-sizing:border-box}
@@ -504,7 +502,16 @@ function blocoVinc(n,c){
   return `<div class="vinc"><p>${estado}</p><select id="vincSel" aria-label="Contrato na planilha">${ops}</select><button data-vinc="${encodeURIComponent(n)}">Salvar vínculo</button><small>Se escolher um contrato em uso por outra pessoa, ele passa para esta e a outra é revinculada.</small></div>`;
 }
 /* ---- contrato / minuta / aditivo dentro da pasta de cada pessoa ---- */
-try{if(window.pdfjsLib)pdfjsLib.GlobalWorkerOptions.workerSrc=URL.createObjectURL(new Blob(['importScripts("https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js")'],{type:'text/javascript'}))}catch(e){}
+/* leitores de Word e PDF só são baixados na hora em que você abre um contrato (nunca atrapalham a lista) */
+const LIBS={mammoth:'https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js',pdf:'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js'};
+const _lib={};
+function lib(k){
+  if(_lib[k])return _lib[k];
+  return _lib[k]=new Promise((ok,no)=>{const el=document.createElement('script');el.src=LIBS[k];
+    el.onload=()=>{try{if(k==='pdf')pdfjsLib.GlobalWorkerOptions.workerSrc=URL.createObjectURL(new Blob(['importScripts("https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js")'],{type:'text/javascript'}))}catch(e){}ok()};
+    el.onerror=()=>{delete _lib[k];no(new Error('não foi possível baixar o leitor de '+(k==='pdf'?'PDF':'Word')+' (sem internet?)'))};
+    document.head.appendChild(el)});
+}
 const RE_CT=/contrat|minuta|aditiv/,RE_NAO=/cond[uo]t|integri|comprovante|cnpj|banc|endere/;
 const MES={janeiro:1,fevereiro:2,marco:3,abril:4,maio:5,junho:6,julho:7,agosto:8,setembro:9,outubro:10,novembro:11,dezembro:12};
 const S2={ord:new Map(),cache:new Map(),dlg:'',idx:{}};
@@ -529,9 +536,9 @@ async function ordenar(n){   // candidatos do mais recente para o mais antigo
 }
 async function textoDe(f){
   const ext=f.name.split('.').pop().toLowerCase();
-  if(ext==='docx'){if(!window.mammoth)throw new Error('a biblioteca de Word não carregou (sem internet?)');return (await mammoth.extractRawText({arrayBuffer:await f.arrayBuffer()})).value}
+  if(ext==='docx'){await lib('mammoth');return (await mammoth.extractRawText({arrayBuffer:await f.arrayBuffer()})).value}
   if(ext==='pdf'){
-    if(!window.pdfjsLib)throw new Error('a biblioteca de PDF não carregou (sem internet?)');
+    await lib('pdf');
     const pdf=await pdfjsLib.getDocument({data:new Uint8Array(await f.arrayBuffer())}).promise;let t='';
     for(let i=1;i<=Math.min(pdf.numPages,30);i++){const c=await (await pdf.getPage(i)).getTextContent();t+=c.items.map(x=>x.str+(x.hasEOL?'\n':' ')).join('')+'\n'}
     return t;

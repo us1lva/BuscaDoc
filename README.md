@@ -4,10 +4,6 @@ Painel que lê a pasta #ATIVOS **direto no navegador** (Chrome/Edge) e se atuali
 quando arquivos são adicionados, alterados ou removidos. Nenhum arquivo sai do seu computador:
 o Vercel só entrega a página; a leitura da pasta acontece localmente.
 
-## Publicar
-1. GitHub: crie um repositório vazio e envie estes arquivos
-   (site: *Add file > Upload files*; ou `git remote add origin <url>` + `git push -u origin main`).
-2. Vercel: *Add New > Project* > importe o repositório > Framework **Other** > **Deploy**.
 
 ## Primeiro uso
 1. Abra o endereço do Vercel no Chrome/Edge e clique em **Selecionar pasta #ATIVOS**.
